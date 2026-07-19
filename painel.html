@@ -143,10 +143,9 @@
         <div class="nav-right">
             <a href="#"><i class="far fa-envelope"></i> <span class="badge">73</span></a>
             <a href="#"><i class="far fa-question-circle"></i></a>
-            <div class="user-profile">
-                <!-- Imagem genérica de usuário, substitua se necessário -->
+            <div class="user-profile" onclick="fazerLogout()" title="Sair do Sistema">
                 <img src="https://i.pravatar.cc/150?img=11" alt="Usuário">
-                <i class="fas fa-bars"></i>
+                <i class="fas fa-sign-out-alt" style="color: #d9534f; margin-left: 5px;"></i>
             </div>
         </div>
     </header>
@@ -221,5 +220,13 @@
 
     </main>
 
+    <script>
+        // Função para destruir a sessão e voltar ao login
+        function fazerLogout() {
+            sessionStorage.removeItem('usuarioAutenticado');
+            sessionStorage.clear(); // Limpa qualquer outro dado de sessão
+            window.location.replace('index.html');
+        }
+    </script>
 </body>
 </html>
