@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet PMMG - Meus Dados</title>
+    
+    <!-- Blindagem de Segurança -->
+    <script>
+        if (sessionStorage.getItem('usuarioAutenticado') !== 'SIM_PMMG') {
+            window.location.replace('index.html');
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; }
+
+        /* Reaproveitamento do Navbar */
+        .navbar { display: flex; justify-content: space-between; align-items: center; background-color: #d8ceb7; padding: 0 20px; height: 60px; border-bottom: 2px solid #c5bba3; }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .nav-left img { height: 40px; }
+        .nav-left h1 { font-size: 18px; color: #111; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .sub-nav { height: 6px; background-color: #111; width: 100%; position: relative; }
+        .stripe-detail { position: absolute; left: 20px; top: 0; width: 100px; height: 100%; background: repeating-linear-gradient(45deg, #111, #111 5px, #d8ceb7 5px, #d8ceb7 10px); }
+
+        /* Container do Formulário */
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .config-card { background: #fff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 5px solid #111; }
+        .config-header { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
+        .config-header h2 { color: #111; font-size: 22px; }
+        
+        /* Foto de Perfil */
+        .photo-upload-section { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
+        .photo-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #d8ceb7; }
+        .photo-actions label { background-color: #111; color: #fff; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; display: inline-block; }
+        .photo-actions label:hover { background-color: #333; }
+        .photo-actions input[type="file"] { display: none; }
+        .photo-help { font-size: 11px; color: #777; margin-top: 5px; }
+
+        /* Grid do Formulário */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; background: #fafafa; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: #bd9b60; outline: none; background: #fff; }
+        .form-group.full-width { grid-column: span 2; }
+
+        .btn-salvar {
+            background-color: #bd9b60; color: #111; font-weight: bold; border: none; padding: 12px 30px;
+            border-radius: 4px; cursor: pointer; font-size: 15px; margin-top: 30px; width: 100%; transition: 0.2s;
+        }
+        .btn-salvar:hover { background-color: #a88a55; }
+        
+        #msgRetorno { display: none; padding: 10px; margin-top: 15px; border-radius: 4px; font-size: 14px; text-align: center; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegação -->
+    <header class="navbar">
+        <a href="painel.html" class="nav-left">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Bras%C3%A3o_PMMG.svg/1200px-Bras%C3%A3o_PMMG.svg.png" alt="PMMG">
+            <h1>Intranet <i class="fas fa-home" style="font-size: 14px; margin-left: 5px; color: #555;"></i></h1>
+        </a>
+    </header>
+    <div class="sub-nav"><div class="stripe-detail"></div></div>
+
+    <!-- Conteúdo -->
+    <main class="container">
+        <div class="config-card">
+            <div class="config-header">
+                <h2>Meus Dados Pessoais</h2>
+            </div>
+
+            <div class="photo-upload-section">
+                <img id="previewFoto" class="photo-preview" src="https://i.pravatar.cc/150?img=11" alt="Foto">
+                <div class="photo-actions">
+                    <label for="inputFoto"><i class="fas fa-camera"></i> Alterar Foto</label>
+                    <input type="file" id="inputFoto" accept="image/*">
+                    <div class="photo-help">Formatos suportados: JPG, PNG.</div>
+                </div>
+            </div>
+
+            <form id="formDados">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Nome Completo</label>
+                        <input type="text" id="nome" placeholder="Seu nome completo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Posto / Graduação</label>
+                        <select id="patente">
+                            <option value="">Selecione...</option>
+                            <option value="Cel">Coronel</option>
+                            <option value="Ten Cel">Tenente-Coronel</option>
+                            <option value="Maj">Major</option>
+                            <option value="Cap">Capitão</option>
+                            <option value="Ten">Tenente</option>
+                            <option value="Sgt">Sargento</option>
+                            <option value="Cb">Cabo</option>
+                            <option value="Sd">Soldado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Unidade (BPM / RPM)</label>
+                        <input type="text" id="unidade" placeholder="Ex: 1º BPM">
+                    </div>
+
+                    <div class="form-group">
+                        <label>E-mail Institucional</label>
+                        <input type="email" id="email" placeholder="usuario@pmmg.mg.gov.br">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Telefone / Celular</label>
+                        <input type="text" id="telefone" placeholder="(31) 90000-0000">
+                    </div>
+                </div>
+
+                <div id="msgRetorno"></div>
+
+                <button type="submit" class="btn-salvar"><i class="fas fa-save"></i> Salvar Dados</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // 1. Carregar dados e foto ao abrir a página
+        window.onload = function() {
+            // Carrega a Foto
+            var fotoSalva = localStorage.getItem('fotoPerfilPMMG');
+            if (fotoSalva) {
+                document.getElementById('previewFoto').src = fotoSalva;
+            }
+            // Carrega os Dados (se existirem)
+            document.getElementById('nome').value = localStorage.getItem('pmmg_nome') || '';
+            document.getElementById('patente').value = localStorage.getItem('pmmg_patente') || '';
+            document.getElementById('unidade').value = localStorage.getItem('pmmg_unidade') || '';
+            document.getElementById('email').value = localStorage.getItem('pmmg_email') || '';
+            document.getElementById('telefone').value = localStorage.getItem('pmmg_telefone') || '';
+        };
+
+        // 2. Leitor de Arquivo (Converte a imagem para Base64)
+        document.getElementById('inputFoto').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var base64Image = e.target.result;
+                    document.getElementById('previewFoto').src = base64Image;
+                    // Salva a foto no navegador do usuário
+                    localStorage.setItem('fotoPerfilPMMG', base64Image);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 3. Salvar os dados do formulário
+        document.getElementById('formDados').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var msg = document.getElementById('msgRetorno');
+            var btn = document.querySelector('.btn-salvar');
+
+            // Salva os textos no armazenamento local
+            localStorage.setItem('pmmg_nome', document.getElementById('nome').value);
+            localStorage.setItem('pmmg_patente', document.getElementById('patente').value);
+            localStorage.setItem('pmmg_unidade', document.getElementById('unidade').value);
+            localStorage.setItem('pmmg_email', document.getElementById('email').value);
+            localStorage.setItem('pmmg_telefone', document.getElementById('telefone').value);
+
+            // Efeito visual de salvamento
+            btn.innerHTML = 'Salvando...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Dados Salvos!';
+                btn.style.backgroundColor = '#4CAF50';
+                btn.style.color = 'white';
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-save"></i> Salvar Dados';
+                    btn.style.backgroundColor = '#bd9b60';
+                    btn.style.color = '#111';
+                }, 2500);
+            }, 800);
+        });
+    </script>
+</body>
+</html>
