@@ -260,14 +260,14 @@
     }
 
     // ==========================================
-    // 3. BUSCAR FOTO E RESUMO DE HORAS NO BANCO
+    // 3. BUSCAR DADOS PARA OS WIDGETS DA PÁGINA INICIAL
     // ==========================================
     window.onload = async function() {
         if(!npmLogado) return;
 
         try {
             // 3.1 Busca a Foto de Perfil
-            const { data: usuarioData, error: usuarioError } = await clienteSupabase
+            const { data: usuarioData } = await clienteSupabase
                 .from('usuarios')
                 .select('foto_perfil')
                 .eq('npm', npmLogado)
@@ -277,18 +277,40 @@
                 document.getElementById('fotoPerfilMenu').src = usuarioData.foto_perfil;
             }
 
-            // 3.2 Busca as Horas Registradas e Soma para o Widget
-            const { data: horasData, error: horasError } = await clienteSupabase
+            // 3.2 Widget 1: Busca as Horas Registradas
+            const { data: horasData } = await clienteSupabase
                 .from('registro_horas')
                 .select('horas_trabalhadas')
                 .eq('usuario_npm', npmLogado);
 
-            if (!horasError && horasData) {
-                // Pega todos os registros e soma os valores matematicamente
+            if (horasData) {
                 let totalAcumulado = horasData.reduce((soma, registro) => soma + parseFloat(registro.horas_trabalhadas), 0);
-                
-                // Atualiza o texto lá no novo widget que criamos
-                document.getElementById('widgetTotalHoras').innerText = totalAcumulado.toFixed(2) + ' h';
+                let widgetHoras = document.getElementById('widgetTotalHoras');
+                if(widgetHoras) widgetHoras.innerText = totalAcumulado.toFixed(2) + ' h';
+            }
+
+            // 3.3 Widget 2: Inteligência de Status de Saúde (NOVO)
+            const hojeObj = new Date();
+            const hojeISO = hojeObj.toISOString().split('T')[0]; // Pega a data de hoje no formato YYYY-MM-DD
+            
+            const { data: saudeData } = await clienteSupabase
+                .from('registro_saude')
+                .select('data_inicio, data_fim')
+                .eq('usuario_npm', npmLogado);
+
+            let statusSaude = document.getElementById('widgetStatusSaude');
+            
+            if (saudeData && statusSaude) {
+                // Verifica se existe algum atestado cuja data de hoje esteja entre o início e o fim
+                let estaAfastado = saudeData.some(reg => reg.data_inicio <= hojeISO && reg.data_fim >= hojeISO);
+
+                if (estaAfastado) {
+                    statusSaude.innerText = 'AFASTADO';
+                    statusSaude.style.color = '#d9534f'; // Vermelho
+                } else {
+                    statusSaude.innerText = 'APTO';
+                    statusSaude.style.color = '#5cb85c'; // Verde
+                }
             }
 
         } catch (erro) {
