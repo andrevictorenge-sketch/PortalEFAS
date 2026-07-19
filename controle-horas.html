@@ -17,65 +17,61 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f0f2f5; color: #333; display: flex; height: 100vh; overflow: hidden; }
 
-        /* ================= MENU LATERAL (SIDEBAR) ================= */
-        .sidebar {
-            width: 260px; background-color: #111; color: #fff; display: flex; flex-direction: column;
-            border-right: 4px solid #bd9b60; transition: 0.3s;
-        }
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: #111; color: #fff; display: flex; flex-direction: column; border-right: 4px solid #bd9b60; transition: 0.3s; }
         .sidebar-header { padding: 20px; display: flex; align-items: center; gap: 15px; background: #000; border-bottom: 1px solid #333; }
         .sidebar-header img { width: 40px; }
         .sidebar-header h2 { font-size: 16px; color: #bd9b60; }
-        
         .nav-links { flex: 1; padding: 20px 0; overflow-y: auto; }
         .nav-item { padding: 12px 25px; display: flex; align-items: center; gap: 15px; color: #aaa; text-decoration: none; transition: 0.2s; font-size: 14px; }
         .nav-item:hover, .nav-item.active { background-color: #222; color: #bd9b60; border-left: 4px solid #bd9b60; }
-        
         .sidebar-footer { padding: 20px; border-top: 1px solid #333; background: #000; }
         .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .user-info img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
         .user-info span { font-size: 13px; font-weight: bold; }
         .btn-logout { background: #d9534f; color: white; border: none; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 13px; }
 
-        /* ================= ÁREA PRINCIPAL ================= */
+        /* Main Content */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        
-        .top-navbar { background-color: #d8ceb7; height: 60px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 2px solid #c5bba3; }
+        .top-navbar { background-color: #d8ceb7; height: 60px; min-height: 60px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 2px solid #c5bba3; }
         .top-navbar h1 { font-size: 18px; color: #111; }
-        
-        .container { padding: 30px; display: grid; grid-template-columns: 1fr 2fr; gap: 25px; }
+        .container { padding: 30px; display: grid; grid-template-columns: 1fr 2fr; gap: 25px; align-items: start; }
 
-        /* ================= CARDS E DASHBOARD ================= */
+        /* Cards */
         .dashboard-cards { grid-column: span 2; display: flex; gap: 20px; margin-bottom: 10px; }
         .card { background: #fff; padding: 20px; border-radius: 8px; flex: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #111; }
         .card.gold { border-left-color: #bd9b60; }
         .card h3 { font-size: 13px; color: #777; text-transform: uppercase; margin-bottom: 5px; }
         .card .value { font-size: 28px; font-weight: bold; color: #111; }
-
-        /* ================= FORMULÁRIO ================= */
-        .panel { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .panel h2 { font-size: 16px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
+        /* Card Escuro (Comando) */
+        .card-dark { background: #111; border-left: 5px solid #bd9b60; }
+        .card-dark h3 { color: #bd9b60; }
+        .card-dark .value { color: #fff; }
+
+        /* Formulário e Tabelas */
+        .panel { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .panel h2 { font-size: 16px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between;}
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #555; }
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background: #fafafa; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #bd9b60; }
-        
         .btn-submit { background: #111; color: #fff; padding: 12px; border: none; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-submit:hover { background: #bd9b60; color: #111; }
 
-        /* ================= TABELA DE REGISTROS ================= */
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #f9f9f9; color: #555; font-weight: bold; }
+        /* Tabela */
+        .table-responsive { overflow-x: auto; max-height: 400px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f9f9f9; color: #555; font-weight: bold; position: sticky; top: 0; }
         tr:hover { background-color: #f5f5f5; }
-        .badge-op { background: #e5c98d; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
-        .badge-adm { background: #ddd; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge-op { background: #e5c98d; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .badge-adm { background: #ddd; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
 
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
             .dashboard-cards { flex-direction: column; grid-column: span 1; }
-            .sidebar { display: none; /* Em um cenário real, adiciona-se um botão hamburguer para abrir */ }
+            .sidebar { display: none; }
         }
     </style>
 </head>
@@ -92,7 +88,6 @@
             <a href="painel.html" class="nav-item"><i class="fas fa-home"></i> Página Inicial</a>
             <a href="controle-horas.html" class="nav-item active"><i class="fas fa-clock"></i> Controle de Horas</a>
             <a href="#" class="nav-item"><i class="fas fa-calendar-alt"></i> Escalas SIGOp</a>
-            <a href="#" class="nav-item"><i class="fas fa-car"></i> Frota / Hélios</a>
             <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
         </nav>
 
@@ -101,7 +96,7 @@
                 <img id="sideFoto" src="https://i.pravatar.cc/150?img=11" alt="Perfil">
                 <span id="sideNome">Carregando...</span>
             </div>
-            <button class="btn-logout" onclick="fazerLogout()"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</button>
+            <button class="btn-logout" onclick="fazerLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
     </aside>
 
@@ -109,24 +104,76 @@
     <main class="main-content">
         <header class="top-navbar">
             <h1>Módulo: Horas de Serviço</h1>
-            <div><i class="fas fa-bell"></i></div>
+            <div style="font-size: 14px; font-weight: bold; color: #555;" id="badgeNivel">Nível: Operacional</div>
         </header>
 
         <div class="container">
+
+            <!-- ========================================== -->
+            <!-- PAINEL DO GESTOR (NÍVEL 2) - OCULTO POR PADRÃO -->
+            <!-- ========================================== -->
+            <div id="painelGestor" style="display: none; grid-column: span 2; margin-bottom: 20px;">
+                <h2 style="font-size: 18px; color: #111; margin-bottom: 15px; border-bottom: 2px solid #bd9b60; padding-bottom: 5px;">
+                    <i class="fas fa-star" style="color: #bd9b60;"></i> Visão do Comando (Gestão Global)
+                </h2>
+                
+                <div class="dashboard-cards">
+                    <div class="card card-dark">
+                        <h3>Tropa: Total de Horas</h3>
+                        <div class="value" id="cmdTotalHoras">0.00 h</div>
+                    </div>
+                    <div class="card card-dark">
+                        <h3>Tropa: Horas Operacionais</h3>
+                        <div class="value" id="cmdTotalOp">0.00 h</div>
+                    </div>
+                    <div class="card card-dark">
+                        <h3>Lançamentos Registrados</h3>
+                        <div class="value" id="cmdTotalRegistros">0</div>
+                    </div>
+                </div>
+
+                <div class="panel" style="margin-top: 15px;">
+                    <h2>Auditoria: Todos os Registros da Unidade</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Policial</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Descrição</th>
+                                    <th>Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaGestor">
+                                <tr><td colspan="5" style="text-align:center;">Carregando registros...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PAINEL INDIVIDUAL (VISÍVEL PARA TODOS) -->
+            <!-- ========================================== -->
             
-            <!-- Dashboard Resumo -->
+            <div style="grid-column: span 2; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;">
+                <h2 style="font-size: 16px; color: #555;">Meus Lançamentos Pessoais</h2>
+            </div>
+
+            <!-- Dashboard Resumo (Meu) -->
             <div class="dashboard-cards">
                 <div class="card">
-                    <h3>Total de Horas Lançadas</h3>
+                    <h3>Minhas Horas Totais</h3>
                     <div class="value" id="totalHoras">0.00 h</div>
                 </div>
                 <div class="card gold">
-                    <h3>Serviço Operacional</h3>
+                    <h3>Minhas Horas Operacionais</h3>
                     <div class="value" id="totalOperacional">0.00 h</div>
                 </div>
             </div>
 
-            <!-- Painel de Lançamento (Esquerda) -->
+            <!-- Lançamento -->
             <div class="panel">
                 <h2>Registrar Novo Serviço</h2>
                 <form id="formHoras">
@@ -134,7 +181,6 @@
                         <label>Data do Serviço</label>
                         <input type="date" id="data_servico" required>
                     </div>
-                    
                     <div class="form-group">
                         <label>Natureza / Tipo de Serviço</label>
                         <select id="tipo_servico" required>
@@ -144,25 +190,22 @@
                             <option value="Extra/Especial">Jornada Extra / Especial</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label>Total de Horas Trabalhadas</label>
-                        <input type="number" id="horas" step="0.5" min="1" max="24" placeholder="Ex: 12" required>
+                        <input type="number" id="horas" step="0.5" min="1" max="24" required>
                     </div>
-
                     <div class="form-group">
                         <label>Descrição / Referência</label>
-                        <input type="text" id="descricao" placeholder="Ex: Operação Fecha Batalhão" required>
+                        <input type="text" id="descricao" placeholder="Ex: Patrulhamento" required>
                     </div>
-
                     <button type="submit" class="btn-submit" id="btnSalvar">Lançar Horas</button>
                     <div id="msgRetorno" style="margin-top:10px; font-size:13px; display:none;"></div>
                 </form>
             </div>
 
-            <!-- Tabela de Registros (Direita) -->
+            <!-- Histórico -->
             <div class="panel">
-                <h2>Meu Histórico de Lançamentos</h2>
+                <h2>Meu Histórico</h2>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -174,7 +217,7 @@
                             </tr>
                         </thead>
                         <tbody id="tabelaRegistros">
-                            <tr><td colspan="4" style="text-align:center;">Carregando registros...</td></tr>
+                            <tr><td colspan="4" style="text-align:center;">Carregando...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -188,13 +231,15 @@
 
     <script>
         // ==========================================
-        // 1. CONFIGURAÇÃO DO SUPABASE
+        // 1. CONFIGURAÇÃO DO SUPABASE E SESSÃO
         // ==========================================
-        const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co'; // Ex: https://xxx.supabase.co
-        const SUPABASE_KEY = 'sb_publishable_ZErz71lxVnUDUMM4uIhAiQ_7E8Uc29J';
+        const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
         
         const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         const npmLogado = sessionStorage.getItem('usuario_npm');
+        const nivelAcesso = parseInt(sessionStorage.getItem('usuario_nivel') || '1');
 
         // Configuração de Interface
         document.getElementById('sideNome').innerText = sessionStorage.getItem('usuario_nome') || npmLogado;
@@ -207,9 +252,69 @@
         }
 
         // ==========================================
-        // 2. BUSCAR DADOS PARA A TABELA E DASHBOARD
+        // 2. LÓGICA DO NÍVEL 2 (VISÃO DO GESTOR)
         // ==========================================
-        async function carregarRegistros() {
+        if (nivelAcesso >= 2) {
+            document.getElementById('painelGestor').style.display = 'block';
+            document.getElementById('badgeNivel').innerHTML = '<i class="fas fa-star" style="color:#bd9b60;"></i> Nível: Comando';
+            carregarVisaoGestor();
+        }
+
+        async function carregarVisaoGestor() {
+            try {
+                // Aqui ocorre a mágica do JOIN: Ele puxa o registro E o nome do usuário que lançou
+                const { data, error } = await clienteSupabase
+                    .from('registro_horas')
+                    .select('*, usuarios(nome_completo, posto_graduacao)')
+                    .order('criado_em', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('tabelaGestor');
+                tbody.innerHTML = '';
+                
+                let somaTropaTotal = 0;
+                let somaTropaOp = 0;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum registro encontrado na tropa.</td></tr>';
+                } else {
+                    data.forEach(reg => {
+                        somaTropaTotal += parseFloat(reg.horas_trabalhadas);
+                        if(reg.tipo_servico === 'Operacional') somaTropaOp += parseFloat(reg.horas_trabalhadas);
+
+                        let badgeClass = reg.tipo_servico === 'Operacional' ? 'badge-op' : 'badge-adm';
+                        let dataFormatada = new Date(reg.data_servico + 'T00:00:00').toLocaleDateString('pt-BR');
+                        
+                        // Extrai a patente e o nome do relacionamento com a tabela usuarios
+                        let patente = reg.usuarios && reg.usuarios.posto_graduacao ? reg.usuarios.posto_graduacao : '';
+                        let nome = reg.usuarios && reg.usuarios.nome_completo ? reg.usuarios.nome_completo : reg.usuario_npm;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${patente} ${nome}</strong></td>
+                                <td>${dataFormatada}</td>
+                                <td><span class="${badgeClass}">${reg.tipo_servico}</span></td>
+                                <td>${reg.descricao}</td>
+                                <td><strong>${reg.horas_trabalhadas} h</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                document.getElementById('cmdTotalHoras').innerText = somaTropaTotal.toFixed(2) + ' h';
+                document.getElementById('cmdTotalOp').innerText = somaTropaOp.toFixed(2) + ' h';
+                document.getElementById('cmdTotalRegistros').innerText = data.length;
+
+            } catch (erro) {
+                console.error("Erro na Visão Gestor:", erro);
+            }
+        }
+
+        // ==========================================
+        // 3. BUSCAR DADOS PESSOAIS DO USUÁRIO LOGADO
+        // ==========================================
+        async function carregarRegistrosPessoais() {
             try {
                 const { data, error } = await clienteSupabase
                     .from('registro_horas')
@@ -221,7 +326,6 @@
 
                 const tbody = document.getElementById('tabelaRegistros');
                 tbody.innerHTML = '';
-                
                 let somaTotal = 0;
                 let somaOp = 0;
 
@@ -229,11 +333,9 @@
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado.</td></tr>';
                 } else {
                     data.forEach(reg => {
-                        // Cálculos para o Dashboard
                         somaTotal += parseFloat(reg.horas_trabalhadas);
                         if(reg.tipo_servico === 'Operacional') somaOp += parseFloat(reg.horas_trabalhadas);
 
-                        // Formatação visual da tabela
                         let badgeClass = reg.tipo_servico === 'Operacional' ? 'badge-op' : 'badge-adm';
                         let dataFormatada = new Date(reg.data_servico + 'T00:00:00').toLocaleDateString('pt-BR');
 
@@ -248,20 +350,18 @@
                     });
                 }
 
-                // Atualiza o Dashboard
                 document.getElementById('totalHoras').innerText = somaTotal.toFixed(2) + ' h';
                 document.getElementById('totalOperacional').innerText = somaOp.toFixed(2) + ' h';
 
             } catch (erro) {
-                console.error("Erro ao carregar tabela:", erro);
+                console.error("Erro Pessoal:", erro);
             }
         }
 
-        // Carrega a tabela assim que a página abre
-        carregarRegistros();
+        carregarRegistrosPessoais();
 
         // ==========================================
-        // 3. SALVAR NOVAS HORAS NO BANCO
+        // 4. SALVAR NOVAS HORAS NO BANCO
         // ==========================================
         document.getElementById('formHoras').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -290,9 +390,11 @@
                 msg.style.color = 'green';
                 msg.innerText = 'Serviço registrado com sucesso!';
                 
-                // Limpa o formulário e recarrega a tabela imediatamente
                 document.getElementById('formHoras').reset();
-                carregarRegistros();
+                
+                // Recarrega as tabelas para refletir o novo lançamento
+                carregarRegistrosPessoais();
+                if (nivelAcesso >= 2) carregarVisaoGestor();
 
             } catch (erro) {
                 msg.style.display = 'block';
