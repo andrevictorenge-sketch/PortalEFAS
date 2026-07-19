@@ -105,8 +105,8 @@
     const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
     
-    // Inicializa a conexão
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // CORREÇÃO APLICADA
+    const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ==========================================
     // 2. LÓGICA DE ATUALIZAÇÃO NO BANCO
@@ -120,7 +120,6 @@
         var novaSenha = document.getElementById('novaSenha').value.trim();
         var confirmaSenha = document.getElementById('confirmaSenha').value.trim();
 
-        // Validação local das senhas
         if(novaSenha !== confirmaSenha) {
             msg.innerHTML = 'As senhas não coincidem.';
             msg.style.color = '#ff4d4d';
@@ -133,8 +132,7 @@
         msg.style.display = 'none';
 
         try {
-            // 1. Primeiro verifica se o usuário (NPM) existe no banco
-            const { data: usuario, error: errorBusca } = await supabase
+            const { data: usuario, error: errorBusca } = await clienteSupabase
                 .from('usuarios')
                 .select('npm')
                 .eq('npm', npm)
@@ -144,8 +142,7 @@
                 throw new Error("NPM não localizado no sistema.");
             }
 
-            // 2. Executa a atualização da senha no PostgreSQL
-            const { error: errorUpdate } = await supabase
+            const { error: errorUpdate } = await clienteSupabase
                 .from('usuarios')
                 .update({ senha: novaSenha })
                 .eq('npm', npm);
@@ -154,20 +151,17 @@
                 throw new Error("Falha ao gravar a senha no banco de dados.");
             }
 
-            // 3. Sucesso
             btn.innerHTML = 'Senha Atualizada!';
             btn.style.backgroundColor = '#4CAF50';
             msg.innerHTML = 'Redirecionando para o login...';
             msg.style.color = '#4CAF50';
             msg.style.display = 'block';
             
-            // Aguarda 2 segundos e manda o usuário para a tela inicial
             setTimeout(() => {
                 window.location.href = "index.html"; 
             }, 2000);
 
         } catch (erro) {
-            // Tratamento de Erros
             btn.innerHTML = 'Atualizar Senha';
             btn.style.backgroundColor = '#e5c98d';
             msg.innerHTML = erro.message;
