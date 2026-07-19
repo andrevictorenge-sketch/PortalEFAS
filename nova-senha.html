@@ -9,7 +9,6 @@
         
         .container { display: flex; width: 100%; height: 100vh; background-color: #121212; }
 
-        /* Lado esquerdo: Banner */
         .banner-side {
             flex: 6; 
             background: url('https://i.postimg.cc/Hxxp8xDK/8.png') center center;
@@ -17,7 +16,6 @@
             background-repeat: no-repeat;
         }
 
-        /* Lado direito: Painel Escuro */
         .login-side {
             flex: 4; 
             background-color: #111111;
@@ -97,16 +95,32 @@
     </div>
 </div>
 
+<!-- Importando a Biblioteca Oficial do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-    document.getElementById('updateForm').addEventListener('submit', function(e) {
+    // ==========================================
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
+    
+    // Inicializa a conexão
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ==========================================
+    // 2. LÓGICA DE ATUALIZAÇÃO NO BANCO
+    // ==========================================
+    document.getElementById('updateForm').addEventListener('submit', async function(e) {
         e.preventDefault(); 
         
         var btn = document.getElementById('btnUpdate');
         var msg = document.getElementById('msgUpdate');
-        var npm = document.getElementById('npmUpdate').value;
-        var novaSenha = document.getElementById('novaSenha').value;
-        var confirmaSenha = document.getElementById('confirmaSenha').value;
+        var npm = document.getElementById('npmUpdate').value.trim();
+        var novaSenha = document.getElementById('novaSenha').value.trim();
+        var confirmaSenha = document.getElementById('confirmaSenha').value.trim();
 
+        // Validação local das senhas
         if(novaSenha !== confirmaSenha) {
             msg.innerHTML = 'As senhas não coincidem.';
             msg.style.color = '#ff4d4d';
@@ -118,41 +132,48 @@
         btn.style.backgroundColor = '#666';
         msg.style.display = 'none';
 
-        // ATENÇÃO: COLOQUE A MESMA URL DO SEU APPS SCRIPT AQUI
-        var scriptURL = "https://script.google.com/macros/s/AKfycbxA7OvS5zheDMHYv7VlMPN-fVDAFpGXllcQaoGosHqw-oaHwicJ2e7dPaRC_Q4fhnZW/exec"; 
+        try {
+            // 1. Primeiro verifica se o usuário (NPM) existe no banco
+            const { data: usuario, error: errorBusca } = await supabase
+                .from('usuarios')
+                .select('npm')
+                .eq('npm', npm)
+                .single();
 
-        var formData = new URLSearchParams();
-        formData.append('acao', 'atualizar_senha');
-        formData.append('npm', npm);
-        formData.append('novaSenha', novaSenha);
-
-        fetch(scriptURL, { method: 'POST', body: formData })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === 'sucesso') {
-                btn.innerHTML = 'Senha Atualizada!';
-                btn.style.backgroundColor = '#4CAF50';
-                msg.innerHTML = 'Redirecionando para o login...';
-                msg.style.color = '#4CAF50';
-                msg.style.display = 'block';
-                setTimeout(() => {
-                    window.location.href = "index.html"; // Retorna para a tela de login principal
-                }, 2000);
-            } else {
-                btn.innerHTML = 'Atualizar Senha';
-                btn.style.backgroundColor = '#e5c98d';
-                msg.innerHTML = data.mensagem;
-                msg.style.color = '#ff4d4d';
-                msg.style.display = 'block';
+            if (errorBusca || !usuario) {
+                throw new Error("NPM não localizado no sistema.");
             }
-        })
-        .catch(error => {
+
+            // 2. Executa a atualização da senha no PostgreSQL
+            const { error: errorUpdate } = await supabase
+                .from('usuarios')
+                .update({ senha: novaSenha })
+                .eq('npm', npm);
+
+            if (errorUpdate) {
+                throw new Error("Falha ao gravar a senha no banco de dados.");
+            }
+
+            // 3. Sucesso
+            btn.innerHTML = 'Senha Atualizada!';
+            btn.style.backgroundColor = '#4CAF50';
+            msg.innerHTML = 'Redirecionando para o login...';
+            msg.style.color = '#4CAF50';
+            msg.style.display = 'block';
+            
+            // Aguarda 2 segundos e manda o usuário para a tela inicial
+            setTimeout(() => {
+                window.location.href = "index.html"; 
+            }, 2000);
+
+        } catch (erro) {
+            // Tratamento de Erros
             btn.innerHTML = 'Atualizar Senha';
             btn.style.backgroundColor = '#e5c98d';
-            msg.innerHTML = 'Erro de rede. Verifique a conexão.';
+            msg.innerHTML = erro.message;
             msg.style.color = '#ff4d4d';
             msg.style.display = 'block';
-        });
+        }
     });
 </script>
 </body>
