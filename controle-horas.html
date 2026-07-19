@@ -31,6 +31,23 @@
         .user-info span { font-size: 13px; font-weight: bold; }
         .btn-logout { background: #d9534f; color: white; border: none; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 13px; }
 
+
+        /* Customização da barra de rolagem interna da tabela do comando */
+        .table-responsive::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .table-responsive::-webkit-scrollbar-track {
+            background: #111; 
+        }
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 3px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #bd9b60; /* Fica dourada quando o mouse passa por cima */
+        }
+
         /* Main Content */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .top-navbar { background-color: #d8ceb7; height: 60px; min-height: 60px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 2px solid #c5bba3; }
@@ -107,13 +124,13 @@
     <aside class="sidebar">
         <div class="sidebar-header">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Bras%C3%A3o_PMMG.svg/1200px-Bras%C3%A3o_PMMG.svg.png" alt="Logo">
-            <h2>Intranet PMMG</h2>
+            <h2>Portal EFAS</h2>
         </div>
         
         <nav class="nav-links">
             <a href="painel.html" class="nav-item"><i class="fas fa-home"></i> Página Inicial</a>
             <a href="controle-horas.html" class="nav-item active"><i class="fas fa-clock"></i> Controle de Horas</a>
-            <a href="#" class="nav-item"><i class="fas fa-calendar-alt"></i> Escalas SIGOp</a>
+            <a href="#" class="nav-item"><i class="fas fa-calendar-alt"></i> Escalas</a>
             <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
         </nav>
 
@@ -196,24 +213,26 @@
                 <!-- Tabela de Auditoria do Comando -->
                 <div style="margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
                     <h4 style="color:#aaa; font-size:13px; text-transform:uppercase; margin-bottom:10px;">Auditoria de Lançamentos (Tempo Real)</h4>
-                    <div class="table-responsive">
-                        <table class="table-dark">
+                    
+                    <!-- MODIFICAÇÃO: Altura máxima controlada para travar em 10 linhas e ativar rolagem vertical -->
+                    <div class="table-responsive" style="max-height: 450px; overflow-y: auto; overflow-x: auto; border: 1px solid #333; border-radius: 4px;">
+                        <table class="table-dark" style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr>
-                                    <th>Unidade</th>
-                                    <th>Policial</th>
-                                    <th>Data</th>
-                                    <th>Tipo</th>
-                                    <th>Horas</th>
+                                    <!-- MODIFICAÇÃO: Garantia de cabeçalho fixo no topo (Sticky) durante a rolagem -->
+                                    <th style="position: sticky; top: 0; background-color: #111; color: #bd9b60; z-index: 20; padding: 12px 15px; text-align: left; border-bottom: 2px solid #333;">Unidade</th>
+                                    <th style="position: sticky; top: 0; background-color: #111; color: #bd9b60; z-index: 20; padding: 12px 15px; text-align: left; border-bottom: 2px solid #333;">Policial</th>
+                                    <th style="position: sticky; top: 0; background-color: #111; color: #bd9b60; z-index: 20; padding: 12px 15px; text-align: left; border-bottom: 2px solid #333;">Data</th>
+                                    <th style="position: sticky; top: 0; background-color: #111; color: #bd9b60; z-index: 20; padding: 12px 15px; text-align: left; border-bottom: 2px solid #333;">Tipo</th>
+                                    <th style="position: sticky; top: 0; background-color: #111; color: #bd9b60; z-index: 20; padding: 12px 15px; text-align: left; border-bottom: 2px solid #333;">Horas</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaGestor">
-                                <tr><td colspan="5" style="text-align:center;">Carregando dados estruturais...</td></tr>
+                                <tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">Carregando dados estruturais...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
 
             <!-- ========================================== -->
             <!-- PAINEL INDIVIDUAL (VISÍVEL PARA TODOS) -->
