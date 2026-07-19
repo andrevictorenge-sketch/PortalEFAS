@@ -173,51 +173,75 @@
     </div>
 </div>
 
+<!-- Importando a Biblioteca Oficial do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    // ==========================================
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co/rest/v1/';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
+    
+    // Inicializa a conexão
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ==========================================
+    // 2. LÓGICA DE LOGIN
+    // ==========================================
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault(); 
         
         var btn = document.getElementById('btnSubmit');
         var msgErro = document.getElementById('mensagemErro');
-        var npm = document.getElementById('npm').value;
-        var senha = document.getElementById('senha').value;
+        var npmDigitado = document.getElementById('npm').value.trim();
+        var senhaDigitada = document.getElementById('senha').value.trim();
 
         btn.innerHTML = 'Aguarde...';
         btn.style.backgroundColor = '#666';
         msgErro.style.display = 'none';
 
-        // ATENÇÃO: COLOQUE A URL DO SEU APPS SCRIPT AQUI
-        var scriptURL = "https://script.google.com/macros/s/AKfycbxA7OvS5zheDMHYv7VlMPN-fVDAFpGXllcQaoGosHqw-oaHwicJ2e7dPaRC_Q4fhnZW/exec";
+        try {
+            // Consulta o banco de dados PostgreSQL
+            const { data, error } = await supabase
+                .from('usuarios')
+                .select('*')
+                .eq('npm', npmDigitado)
+                .single();
 
-        var formData = new URLSearchParams();
-        formData.append('acao', 'login');
-        formData.append('npm', npm);
-        formData.append('senha', senha);
-
-        fetch(scriptURL, { method: 'POST', body: formData })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status === 'sucesso') {
-                btn.innerHTML = 'Aprovado';
-                btn.style.backgroundColor = '#4CAF50';
-                sessionStorage.setItem('usuarioAutenticado', 'SIM_PMMG');
-                window.location.href = data.url; 
-            } else if (data.status === 'primeiro_acesso') {
-                btn.innerHTML = 'Aviso';
-                btn.style.backgroundColor = '#bd9b60';
-                window.location.href = data.url; // Redireciona para atualizar senha
-            } else {
-                btn.innerHTML = 'Entrar';
-                btn.style.backgroundColor = '#e5c98d';
-                msgErro.innerHTML = data.mensagem;
-                msgErro.style.display = 'block';
+            if (error || !data) {
+                throw new Error("NPM não encontrado no sistema.");
             }
-        })
-        .catch(error => {
+
+            // Verifica a senha (em um sistema real futuro, usaremos hash)
+            if (data.senha === senhaDigitada) {
+                
+                // Grava a sessão localmente
+                sessionStorage.setItem('usuarioAutenticado', 'SIM_PMMG');
+                sessionStorage.setItem('usuario_nome', data.nome);
+                sessionStorage.setItem('usuario_npm', data.npm);
+                sessionStorage.setItem('usuario_nivel', data.nivel_acesso);
+
+                // Regra de Primeiro Acesso
+                if (data.senha === data.npm || data.senha === '123456') {
+                    btn.innerHTML = 'Aviso';
+                    btn.style.backgroundColor = '#bd9b60';
+                    window.location.href = 'nova-senha.html';
+                } else {
+                    btn.innerHTML = 'Aprovado';
+                    btn.style.backgroundColor = '#4CAF50';
+                    window.location.href = data.url_painel; 
+                }
+
+            } else {
+                throw new Error("Senha incorreta.");
+            }
+
+        } catch (erro) {
             btn.innerHTML = 'Entrar';
             btn.style.backgroundColor = '#e5c98d';
-            msgErro.innerHTML = 'Erro de rede. Verifique a conexão.';
+            msgErro.innerHTML = erro.message;
             msgErro.style.display = 'block';
-        });
+        }
     });
 </script>
