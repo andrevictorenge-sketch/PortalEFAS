@@ -200,6 +200,7 @@
             if(data.status === 'sucesso') {
                 btn.innerHTML = 'Aprovado';
                 btn.style.backgroundColor = '#4CAF50';
+                sessionStorage.setItem('usuarioAutenticado', 'SIM_PMMG');
                 window.location.href = data.url; 
             } else if (data.status === 'primeiro_acesso') {
                 btn.innerHTML = 'Aviso';
