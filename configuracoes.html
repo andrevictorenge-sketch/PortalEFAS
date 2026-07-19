@@ -133,65 +133,118 @@
         </div>
     </main>
 
-    <script>
-        // 1. Carregar dados e foto ao abrir a página
-        window.onload = function() {
-            // Carrega a Foto
-            var fotoSalva = localStorage.getItem('fotoPerfilPMMG');
-            if (fotoSalva) {
-                document.getElementById('previewFoto').src = fotoSalva;
+    <!-- Importando a Biblioteca Oficial do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // ==========================================
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
+    
+    const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ==========================================
+    // 2. RECUPERAÇÃO DO NPM LOGADO
+    // ==========================================
+    const npmLogado = sessionStorage.getItem('usuario_npm');
+    let fotoBase64Atual = ''; // Variável para armazenar a foto na memória
+
+    // ==========================================
+    // 3. CARREGAR DADOS DO BANCO AO ABRIR
+    // ==========================================
+    window.onload = async function() {
+        if(!npmLogado) return;
+
+        try {
+            const { data, error } = await clienteSupabase
+                .from('usuarios')
+                .select('nome, patente, unidade, email, telefone, foto_perfil')
+                .eq('npm', npmLogado)
+                .single();
+
+            if (data) {
+                document.getElementById('nome').value = data.nome || '';
+                document.getElementById('patente').value = data.patente || '';
+                document.getElementById('unidade').value = data.unidade || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('telefone').value = data.telefone || '';
+                
+                if (data.foto_perfil) {
+                    document.getElementById('previewFoto').src = data.foto_perfil;
+                    fotoBase64Atual = data.foto_perfil; // Salva para enviar de novo se não alterar
+                }
             }
-            // Carrega os Dados (se existirem)
-            document.getElementById('nome').value = localStorage.getItem('pmmg_nome') || '';
-            document.getElementById('patente').value = localStorage.getItem('pmmg_patente') || '';
-            document.getElementById('unidade').value = localStorage.getItem('pmmg_unidade') || '';
-            document.getElementById('email').value = localStorage.getItem('pmmg_email') || '';
-            document.getElementById('telefone').value = localStorage.getItem('pmmg_telefone') || '';
+        } catch (erro) {
+            console.error("Erro ao puxar dados do Supabase:", erro);
+        }
+    };
+
+    // ==========================================
+    // 4. LEITOR DE FOTO (CONVERSÃO PARA TEXTO BASE64)
+    // ==========================================
+    document.getElementById('inputFoto').addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                fotoBase64Atual = e.target.result; // A foto virou um texto longo
+                document.getElementById('previewFoto').src = fotoBase64Atual;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ==========================================
+    // 5. SALVAR DADOS NO POSTGRESQL
+    // ==========================================
+    document.getElementById('formDados').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        var btn = document.querySelector('.btn-salvar');
+        btn.innerHTML = 'Gravando no Banco...';
+        btn.style.backgroundColor = '#666';
+
+        // Coleta os valores da tela
+        const dadosAtualizados = {
+            nome: document.getElementById('nome').value.trim(),
+            patente: document.getElementById('patente').value,
+            unidade: document.getElementById('unidade').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            telefone: document.getElementById('telefone').value.trim(),
+            foto_perfil: fotoBase64Atual
         };
 
-        // 2. Leitor de Arquivo (Converte a imagem para Base64)
-        document.getElementById('inputFoto').addEventListener('change', function(event) {
-            var file = event.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    var base64Image = e.target.result;
-                    document.getElementById('previewFoto').src = base64Image;
-                    // Salva a foto no navegador do usuário
-                    localStorage.setItem('fotoPerfilPMMG', base64Image);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        try {
+            // Executa o UPDATE no Supabase
+            const { error } = await clienteSupabase
+                .from('usuarios')
+                .update(dadosAtualizados)
+                .eq('npm', npmLogado);
 
-        // 3. Salvar os dados do formulário
-        document.getElementById('formDados').addEventListener('submit', function(e) {
-            e.preventDefault();
+            if (error) throw error;
+
+            // Atualiza também a sessão local para o painel reconhecer o nome caso tenha mudado
+            sessionStorage.setItem('usuario_nome', dadosAtualizados.nome);
+
+            // Sucesso Visual
+            btn.innerHTML = '<i class="fas fa-check"></i> Sincronizado!';
+            btn.style.backgroundColor = '#4CAF50';
+            btn.style.color = 'white';
             
-            var msg = document.getElementById('msgRetorno');
-            var btn = document.querySelector('.btn-salvar');
-
-            // Salva os textos no armazenamento local
-            localStorage.setItem('pmmg_nome', document.getElementById('nome').value);
-            localStorage.setItem('pmmg_patente', document.getElementById('patente').value);
-            localStorage.setItem('pmmg_unidade', document.getElementById('unidade').value);
-            localStorage.setItem('pmmg_email', document.getElementById('email').value);
-            localStorage.setItem('pmmg_telefone', document.getElementById('telefone').value);
-
-            // Efeito visual de salvamento
-            btn.innerHTML = 'Salvando...';
             setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-check"></i> Dados Salvos!';
-                btn.style.backgroundColor = '#4CAF50';
-                btn.style.color = 'white';
-                
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fas fa-save"></i> Salvar Dados';
-                    btn.style.backgroundColor = '#bd9b60';
-                    btn.style.color = '#111';
-                }, 2500);
-            }, 800);
-        });
-    </script>
+                btn.innerHTML = '<i class="fas fa-save"></i> Salvar Dados';
+                btn.style.backgroundColor = '#bd9b60';
+                btn.style.color = '#111';
+            }, 2500);
+
+        } catch (erro) {
+            alert("Erro ao salvar no banco: " + erro.message);
+            btn.innerHTML = '<i class="fas fa-save"></i> Tentar Novamente';
+            btn.style.backgroundColor = '#d9534f';
+        }
+    });
+</script>
 </body>
 </html>
