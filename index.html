@@ -176,6 +176,9 @@
 <!-- Importando a Biblioteca Oficial do Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- Importando a Biblioteca Oficial do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
     // ==========================================
     // 1. CONFIGURAÇÃO DO SUPABASE
@@ -183,8 +186,8 @@
     const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
     
-    // Inicializa a conexão
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // CORREÇÃO: Variável renomeada para clienteSupabase para evitar conflito
+    const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ==========================================
     // 2. LÓGICA DE LOGIN
@@ -202,8 +205,7 @@
         msgErro.style.display = 'none';
 
         try {
-            // Consulta o banco de dados PostgreSQL
-            const { data, error } = await supabase
+            const { data, error } = await clienteSupabase
                 .from('usuarios')
                 .select('*')
                 .eq('npm', npmDigitado)
@@ -213,16 +215,12 @@
                 throw new Error("NPM não encontrado no sistema.");
             }
 
-            // Verifica a senha (em um sistema real futuro, usaremos hash)
             if (data.senha === senhaDigitada) {
-                
-                // Grava a sessão localmente
                 sessionStorage.setItem('usuarioAutenticado', 'SIM_PMMG');
                 sessionStorage.setItem('usuario_nome', data.nome);
                 sessionStorage.setItem('usuario_npm', data.npm);
                 sessionStorage.setItem('usuario_nivel', data.nivel_acesso);
 
-                // Regra de Primeiro Acesso
                 if (data.senha === data.npm || data.senha === '123456') {
                     btn.innerHTML = 'Aviso';
                     btn.style.backgroundColor = '#bd9b60';
@@ -232,7 +230,6 @@
                     btn.style.backgroundColor = '#4CAF50';
                     window.location.href = data.url_painel; 
                 }
-
             } else {
                 throw new Error("Senha incorreta.");
             }
