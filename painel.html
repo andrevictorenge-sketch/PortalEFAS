@@ -253,36 +253,65 @@
 
     </main>
 
-    <script>
-        // Lógica do Menu Suspenso
-        function toggleMenu() {
-            document.getElementById('profileMenu').classList.toggle('active');
-        }
+    <!-- Importando a Biblioteca Oficial do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        // Fecha o menu se clicar fora dele
-        window.addEventListener('click', function(e) {
-            if (!document.querySelector('.profile-container').contains(e.target)) {
-                var menu = document.getElementById('profileMenu');
-                if (menu && menu.classList.contains('active')) {
-                    menu.classList.remove('active');
-                }
-            }
-        });
+<script>
+    // ==========================================
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
+    
+    const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const npmLogado = sessionStorage.getItem('usuario_npm');
 
-        // Lógica de Logout
-        function fazerLogout() {
-            sessionStorage.removeItem('usuarioAutenticado');
-            window.location.replace('index.html');
-        }
+    // ==========================================
+    // 2. FUNÇÕES DE INTERFACE
+    // ==========================================
+    function toggleMenu() {
+        document.getElementById('profileMenu').classList.toggle('active');
+    }
 
-        // Carrega a foto personalizada ao abrir a página
-        window.onload = function() {
-            var fotoSalva = localStorage.getItem('fotoPerfilPMMG');
-            if (fotoSalva) {
-                document.getElementById('fotoPerfilMenu').src = fotoSalva;
+    window.addEventListener('click', function(e) {
+        if (!document.querySelector('.profile-container').contains(e.target)) {
+            var menu = document.getElementById('profileMenu');
+            if (menu && menu.classList.contains('active')) {
+                menu.classList.remove('active');
             }
         }
-    </script>
+    });
+
+    function fazerLogout() {
+        sessionStorage.removeItem('usuarioAutenticado');
+        sessionStorage.removeItem('usuario_npm');
+        sessionStorage.removeItem('usuario_nome');
+        sessionStorage.removeItem('usuario_nivel');
+        window.location.replace('index.html');
+    }
+
+    // ==========================================
+    // 3. BUSCAR FOTO NO BANCO AO CARREGAR O PAINEL
+    // ==========================================
+    window.onload = async function() {
+        if(!npmLogado) return;
+
+        try {
+            const { data, error } = await clienteSupabase
+                .from('usuarios')
+                .select('foto_perfil')
+                .eq('npm', npmLogado)
+                .single();
+
+            // Se o usuário tiver uma foto salva no banco, atualiza o menu superior
+            if (data && data.foto_perfil) {
+                document.getElementById('fotoPerfilMenu').src = data.foto_perfil;
+            }
+        } catch (erro) {
+            console.error("Falha ao carregar a foto do banco:", erro);
+        }
+    };
+</script>
 
     
 </body>
