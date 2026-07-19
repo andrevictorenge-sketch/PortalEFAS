@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet PMMG - Painel</title>
+    <!-- Biblioteca de Ícones (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; }
+
+        /* ================= NAV BAR SUPERIOR ================= */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: #d8ceb7; padding: 0 20px; height: 60px;
+            border-bottom: 2px solid #c5bba3;
+        }
+        
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .nav-left img { height: 40px; }
+        .nav-left h1 { font-size: 18px; color: #111; font-weight: 600; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        
+        .nav-center { display: flex; gap: 30px; }
+        .nav-center a { color: #555; font-size: 20px; text-decoration: none; transition: 0.2s; position: relative; }
+        .nav-center a:hover, .nav-center a.active { color: #111; }
+        .nav-center a.active::after {
+            content: ''; position: absolute; bottom: -18px; left: -10px; right: -10px;
+            height: 3px; background-color: #111;
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-right a { color: #555; font-size: 20px; position: relative; text-decoration: none; }
+        .badge {
+            position: absolute; top: -8px; right: -10px; background-color: #ffcc00;
+            color: #111; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px;
+        }
+        .user-profile {
+            display: flex; align-items: center; gap: 10px; background: #fff; padding: 5px 10px;
+            border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer;
+        }
+        .user-profile img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+
+        /* ================= FAIXA TÁTICA PRETA ================= */
+        .sub-nav { height: 6px; background-color: #111; width: 100%; position: relative; }
+        .stripe-detail {
+            position: absolute; left: 20px; top: 0; width: 100px; height: 100%;
+            background: repeating-linear-gradient(45deg, #111, #111 5px, #d8ceb7 5px, #d8ceb7 10px);
+        }
+
+        /* ================= CONTAINER PRINCIPAL ================= */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+
+        /* ================= POST PRINCIPAL ================= */
+        .feed-card { background: #e9e9e9; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .feed-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .feed-author { display: flex; gap: 15px; align-items: center; }
+        .feed-author img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .feed-author strong { display: block; font-size: 15px; color: #111; }
+        .feed-date { font-size: 12px; color: #777; }
+        
+        .feed-content p { font-size: 14px; line-height: 1.6; color: #444; margin-bottom: 15px; text-align: justify; }
+        
+        .feed-video { position: relative; width: 100%; max-width: 500px; border-radius: 8px; overflow: hidden; cursor: pointer; }
+        .feed-video img { width: 100%; display: block; }
+        .feed-video::after {
+            content: '\f144'; font-family: 'FontAwesome'; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 40px; color: rgba(255,255,255,0.8);
+        }
+        
+        .feed-footer { text-align: right; margin-top: 15px; }
+        .feed-footer a { font-size: 13px; color: #555; text-decoration: none; font-weight: bold; }
+
+        /* ================= GALERIA DE BANNERS (SCROLL) ================= */
+        .gallery-container { width: 100%; overflow-x: auto; padding-bottom: 15px; margin-bottom: 30px; }
+        .gallery-scroll { display: flex; gap: 15px; width: max-content; }
+        .gallery-item {
+            width: 250px; height: 350px; background-color: #333; border-radius: 8px;
+            background-size: cover; background-position: center; position: relative; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .gallery-item:hover { transform: translateY(-5px); }
+        
+        /* Barra de rolagem estilizada */
+        .gallery-container::-webkit-scrollbar { height: 12px; }
+        .gallery-container::-webkit-scrollbar-track { background: #dcdcdc; border-radius: 10px; }
+        .gallery-container::-webkit-scrollbar-thumb { background: #a5a5a5; border-radius: 10px; }
+
+        /* ================= WIDGETS INFERIORES ================= */
+        .widgets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .widget-dark {
+            background-color: #000; border-radius: 8px; padding: 25px 20px;
+            display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .widget-dark i { color: #d8ceb7; font-size: 24px; }
+        .widget-dark h3 { color: #bd9b60; font-size: 16px; margin-bottom: 5px; text-transform: uppercase; }
+        .widget-dark p { color: #fff; font-size: 13px; }
+
+        .widget-light {
+            background-color: #e9e9e9; border-radius: 8px; padding: 25px 20px;
+            display: flex; align-items: center; gap: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer;
+        }
+        .widget-light img { width: 50px; height: 50px; border-radius: 50%; }
+        .widget-light h3 { color: #111; font-size: 16px; }
+
+        @media (max-width: 900px) {
+            .nav-center { display: none; } /* Oculta menu central no mobile */
+            .widgets-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegação Superior -->
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Bras%C3%A3o_PMMG.svg/1200px-Bras%C3%A3o_PMMG.svg.png" alt="PMMG">
+            <h1>Intranet <i class="fas fa-chevron-down" style="font-size: 12px;"></i></h1>
+        </div>
+        
+        <!-- Ícones Centrais - Prontos para linkar com Módulos Operacionais -->
+        <nav class="nav-center">
+            <a href="#" class="active" title="Início"><i class="fas fa-home"></i></a>
+            <a href="#" title="Estado Maior da Operação"><i class="fas fa-users-cog"></i></a>
+            <a href="#" title="Frota / Viaturas"><i class="fas fa-car"></i></a>
+            <a href="#" title="Em Planejamento"><i class="fas fa-graduation-cap"></i></a>
+            <a href="#" title="Saúde"><i class="fas fa-stethoscope"></i></a>
+            <a href="#" title="Sistemas"><i class="fas fa-desktop"></i></a>
+        </nav>
+
+        <div class="nav-right">
+            <a href="#"><i class="far fa-envelope"></i> <span class="badge">73</span></a>
+            <a href="#"><i class="far fa-question-circle"></i></a>
+            <div class="user-profile">
+                <!-- Imagem genérica de usuário, substitua se necessário -->
+                <img src="https://i.pravatar.cc/150?img=11" alt="Usuário">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Faixa Tática -->
+    <div class="sub-nav">
+        <div class="stripe-detail"></div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <main class="container">
+        
+        <!-- Post do Comandante -->
+        <section class="feed-card">
+            <div class="feed-header">
+                <div class="feed-author">
+                    <img src="https://i.pravatar.cc/150?img=33" alt="Comandante">
+                    <strong>Comandante-Geral</strong>
+                </div>
+                <div class="feed-date">18/07/2026</div>
+            </div>
+            
+            <div class="feed-content">
+                <p>Os 2.190 formandos do Curso Especial de Formação de Sargentos alcançam mais uma etapa em suas trajetórias na Polícia Militar de Minas Gerais. O aperfeiçoamento profissional fortalece a liderança, prepara nossos militares para novos desafios e reafirma o compromisso da Instituição com a valorização da tropa. Parabéns pela conquista. Que Deus conceda a cada um sabedoria, prudência e discernimento para enfrentar os desafios que virão, liderando sempre pelo exemplo e honrando a confiança depositada em nossa Polícia Militar.</p>
+                
+                <!-- Substitua o link da imagem pela miniatura real do vídeo -->
+                <div class="feed-video">
+                    <img src="https://images.unsplash.com/photo-1541888071858-54db7c822e17?q=80&w=1000&auto=format&fit=crop" style="height: 250px; object-fit: cover;" alt="Formatura CEES 2026">
+                </div>
+            </div>
+            
+            <div class="feed-footer">
+                <a href="#">Mais</a>
+            </div>
+        </section>
+
+        <!-- Galeria de Banners Rolável -->
+        <section class="gallery-container">
+            <div class="gallery-scroll">
+                <!-- Banner 1 -->
+                <div class="gallery-item" style="background-image: url('https://images.unsplash.com/photo-1563889362706-538166d03d3c?q=80&w=500&auto=format&fit=crop');"></div>
+                <!-- Banner 2 (TV PMMG) -->
+                <div class="gallery-item" style="background-image: url('https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=500&auto=format&fit=crop'); display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-play-circle" style="font-size: 50px; color: rgba(255,0,0,0.8);"></i>
+                </div>
+                <!-- Banner 3 -->
+                <div class="gallery-item" style="background-image: url('https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=500&auto=format&fit=crop');"></div>
+                <!-- Banner 4 -->
+                <div class="gallery-item" style="background-image: url('https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=500&auto=format&fit=crop');"></div>
+                <!-- Banner 5 -->
+                <div class="gallery-item" style="background-image: url('https://images.unsplash.com/photo-1577563908411-5077b6dc7624?q=80&w=500&auto=format&fit=crop');"></div>
+            </div>
+        </section>
+
+        <!-- Widgets Inferiores -->
+        <section class="widgets-grid">
+            <div class="widget-dark">
+                <i class="fas fa-feather-alt"></i>
+                <div>
+                    <h3>Memorial dos Heróis</h3>
+                    <p>Que não sejam muitos, mas que os poucos sejam eternamente lembrados.</p>
+                </div>
+            </div>
+            
+            <div class="widget-light">
+                <div style="width: 50px; height: 50px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-play" style="color: #bd9b60; font-size: 20px;"></i>
+                </div>
+                <h3>TV PMMG Corporativa</h3>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
