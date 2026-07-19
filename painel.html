@@ -58,6 +58,24 @@
             background: repeating-linear-gradient(45deg, #111, #111 5px, #d8ceb7 5px, #d8ceb7 10px);
         }
 
+        /* ================= MENU SUSPENSO (DROPDOWN) ================= */
+        .profile-container { position: relative; }
+        .dropdown-menu {
+            display: none; position: absolute; right: 0; top: 50px;
+            background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            width: 220px; overflow: hidden; z-index: 1000; border: 1px solid #eee;
+        }
+        .dropdown-menu.active { display: block; }
+        .dropdown-item {
+            padding: 12px 15px; display: flex; align-items: center; gap: 12px;
+            color: #333; text-decoration: none; transition: 0.2s; border-bottom: 1px solid #f5f5f5; font-size: 14px;
+        }
+        .dropdown-item:hover { background: #f9f9f9; color: #bd9b60; }
+        .dropdown-item.logout { color: #d9534f; border-bottom: none; }
+        .dropdown-item.logout:hover { background: #fee; color: #c9302c; 
+                        
+        }
+
         /* ================= CONTAINER PRINCIPAL ================= */
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
@@ -143,10 +161,25 @@
         <div class="nav-right">
             <a href="#"><i class="far fa-envelope"></i> <span class="badge">73</span></a>
             <a href="#"><i class="far fa-question-circle"></i></a>
-            <div class="user-profile" onclick="fazerLogout()" title="Sair do Sistema">
-                <img src="https://i.pravatar.cc/150?img=11" alt="Usuário">
-                <i class="fas fa-sign-out-alt" style="color: #d9534f; margin-left: 5px;"></i>
+            
+            <!-- Container do Perfil e Dropdown -->
+            <div class="profile-container">
+                <div class="user-profile" onclick="toggleMenu()" title="Opções">
+                    <img id="fotoPerfilMenu" src="https://i.pravatar.cc/150?img=11" alt="Usuário">
+                    <i class="fas fa-bars"></i>
+                </div>
+                
+                <!-- Menu Suspenso -->
+                <div class="dropdown-menu" id="profileMenu">
+                    <a href="configuracoes.html" class="dropdown-item">
+                        <i class="fas fa-user-cog"></i> Meus Dados
+                    </a>
+                    <a href="#" class="dropdown-item logout" onclick="fazerLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Sair do Sistema
+                    </a>
+                </div>
             </div>
+            
         </div>
     </header>
 
@@ -221,12 +254,36 @@
     </main>
 
     <script>
-        // Função para destruir a sessão e voltar ao login
+        // Lógica do Menu Suspenso
+        function toggleMenu() {
+            document.getElementById('profileMenu').classList.toggle('active');
+        }
+
+        // Fecha o menu se clicar fora dele
+        window.addEventListener('click', function(e) {
+            if (!document.querySelector('.profile-container').contains(e.target)) {
+                var menu = document.getElementById('profileMenu');
+                if (menu && menu.classList.contains('active')) {
+                    menu.classList.remove('active');
+                }
+            }
+        });
+
+        // Lógica de Logout
         function fazerLogout() {
             sessionStorage.removeItem('usuarioAutenticado');
-            sessionStorage.clear(); // Limpa qualquer outro dado de sessão
             window.location.replace('index.html');
         }
+
+        // Carrega a foto personalizada ao abrir a página
+        window.onload = function() {
+            var fotoSalva = localStorage.getItem('fotoPerfilPMMG');
+            if (fotoSalva) {
+                document.getElementById('fotoPerfilMenu').src = fotoSalva;
+            }
+        }
     </script>
+
+    
 </body>
 </html>
