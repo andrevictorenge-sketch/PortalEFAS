@@ -129,9 +129,8 @@
     <main class="main-content">
         <header class="top-navbar">
             <h1>Módulo: Horas de Serviço</h1>
+            <!-- Corrigido: Apenas um ID de badgeNivel para evitar quebra do JavaScript -->
             <div style="font-size: 14px; font-weight: bold; color: #555;" id="badgeNivel">Nível: Operacional</div>
-            <div style="font-size: 14px; font-weight: bold; color: #888;" id="badgeNivel">Nível: Interno</div>
-            <div style="font-size: 14px; font-weight: bold; color: #885;" id="badgeNivel">Nível: Outros</div>
         </header>
 
         <div class="container">
@@ -244,13 +243,14 @@
                     </div>
                     <div class="form-group">
                         <label>Natureza / Tipo</label>
+                        <!-- CORREÇÃO APLICADA: Values exatos para garantir o armazenamento correto -->
                         <select id="tipo_servico" required>
                             <option value="">Selecione...</option>
-                            <option value="Interno">Serviços internos</option>
-                            <option value="Interno">Guarda APM / Sentinela</option>
-                            <option value="Operacional">Operação Égide</option>
-                            <option value="Operacional">Empenhos DOP / Hipoteca</option>
-                            <option value="Outros">Serviços Extras / APMI</option>
+                            <option value="Serviços internos">Serviços internos</option>
+                            <option value="Guarda APM / Sentinela">Guarda APM / Sentinela</option>
+                            <option value="Operação Égide">Operação Égide</option>
+                            <option value="Empenhos DOP / Hipoteca">Empenhos DOP / Hipoteca</option>
+                            <option value="Serviços Extras / APMI">Serviços Extras / APMI</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -323,7 +323,6 @@
 
         async function carregarVisaoGestor() {
             try {
-                // JOIN: Traz o registro + Patente, Nome, Pelotão e CIA
                 const { data, error } = await clienteSupabase
                     .from('registro_horas')
                     .select('*, usuarios(nome_completo, posto_graduacao, pelotao, cia)')
@@ -334,7 +333,6 @@
                 const tbody = document.getElementById('tabelaGestor');
                 tbody.innerHTML = '';
                 
-                // Variáveis Acumuladoras
                 let somaTropaTotal = 0;
                 let somaTropaOp = 0;
                 let horasCia = { 'Alferes': 0, 'Tiradentes': 0 };
@@ -346,24 +344,23 @@
                     data.forEach(reg => {
                         let hrs = parseFloat(reg.horas_trabalhadas);
                         
-                        // Somas Globais
+                        // CORREÇÃO: Nova inteligência para identificar o que é "Operacional"
+                        let isOperacional = (reg.tipo_servico === 'Operação Égide' || reg.tipo_servico === 'Empenhos DOP / Hipoteca');
+                        
                         somaTropaTotal += hrs;
-                        if(reg.tipo_servico === 'Operacional') somaTropaOp += hrs;
+                        if(isOperacional) somaTropaOp += hrs;
 
-                        // Extração Segura de Dados do Usuário Relacionado
                         let usuario = reg.usuarios || {};
                         let patente = usuario.posto_graduacao || '';
                         let nome = usuario.nome_completo || reg.usuario_npm;
                         let cia = usuario.cia || 'N/A';
                         let pel = parseInt(usuario.pelotao) || 0;
 
-                        // Inteligência: Somas Segmentadas por CIA e Pelotão
                         if (cia === 'Alferes') horasCia['Alferes'] += hrs;
                         if (cia === 'Tiradentes') horasCia['Tiradentes'] += hrs;
                         if (pel >= 1 && pel <= 8) horasPel[pel] += hrs;
 
-                        // Montagem da Tabela Visual
-                        let badgeClass = reg.tipo_servico === 'Operacional' ? 'badge-op' : 'badge-adm';
+                        let badgeClass = isOperacional ? 'badge-op' : 'badge-adm';
                         let dataFormatada = new Date(reg.data_servico + 'T00:00:00').toLocaleDateString('pt-BR');
                         
                         tbody.innerHTML += `
@@ -378,20 +375,17 @@
                     });
                 }
 
-                // Injeta Somas Globais
                 document.getElementById('cmdTotalHoras').innerText = somaTropaTotal.toFixed(1) + ' h';
                 document.getElementById('cmdTotalOp').innerText = somaTropaOp.toFixed(1) + ' h';
                 document.getElementById('cmdTotalRegistros').innerText = data.length;
 
-                // Injeta Comparativo de CIA (Barras de Progresso)
                 document.getElementById('cmdCiaAlferes').innerText = horasCia['Alferes'].toFixed(1) + ' h';
                 document.getElementById('cmdCiaTiradentes').innerText = horasCia['Tiradentes'].toFixed(1) + ' h';
                 
-                let maxCia = Math.max(horasCia['Alferes'], horasCia['Tiradentes'], 1); // Evita divisão por zero
+                let maxCia = Math.max(horasCia['Alferes'], horasCia['Tiradentes'], 1); 
                 document.getElementById('barCiaAlferes').style.width = ((horasCia['Alferes'] / maxCia) * 100) + '%';
                 document.getElementById('barCiaTiradentes').style.width = ((horasCia['Tiradentes'] / maxCia) * 100) + '%';
 
-                // Injeta Ranking de Pelotões
                 for(let i=1; i<=8; i++) {
                     document.getElementById('cmdPel'+i).innerText = horasPel[i].toFixed(1) + ' h';
                 }
@@ -424,10 +418,14 @@
                 } else {
                     data.forEach(reg => {
                         let hrs = parseFloat(reg.horas_trabalhadas);
-                        somaTotal += hrs;
-                        if(reg.tipo_servico === 'Operacional') somaOp += hrs;
+                        
+                        // CORREÇÃO: Nova inteligência para identificar o que é "Operacional"
+                        let isOperacional = (reg.tipo_servico === 'Operação Égide' || reg.tipo_servico === 'Empenhos DOP / Hipoteca');
 
-                        let badgeClass = reg.tipo_servico === 'Operacional' ? 'badge-op' : 'badge-adm';
+                        somaTotal += hrs;
+                        if(isOperacional) somaOp += hrs;
+
+                        let badgeClass = isOperacional ? 'badge-op' : 'badge-adm';
                         let dataFormatada = new Date(reg.data_servico + 'T00:00:00').toLocaleDateString('pt-BR');
 
                         tbody.innerHTML += `
