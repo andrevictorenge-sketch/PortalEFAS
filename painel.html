@@ -243,11 +243,21 @@
                 </div>
             </div>
             
-            <div class="widget-light">
-                <div style="width: 50px; height: 50px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-play" style="color: #bd9b60; font-size: 20px;"></i>
+            <!-- Novo Widget: Controle de Horas -->
+            <div class="widget-light" onclick="window.location.href='controle-horas.html'" style="cursor: pointer; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div style="width: 50px; height: 50px; background: #111; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-stopwatch" style="color: #bd9b60; font-size: 20px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: #111; font-size: 16px;">Controle de Horas</h3>
+                        <p style="font-size: 12px; color: #666; margin-top: 2px;">Meus lançamentos de serviço</p>
+                    </div>
                 </div>
-                <h3>TV PMMG Corporativa</h3>
+                <div style="text-align: right; background: #fff; padding: 5px 10px; border-radius: 6px; border: 1px solid #ddd;">
+                    <span style="font-size: 11px; color: #777; display: block; text-transform: uppercase;">Total Acumulado</span>
+                    <strong id="widgetTotalHoras" style="font-size: 18px; color: #111;">0.00 h</strong>
+                </div>
             </div>
         </section>
 
@@ -291,24 +301,39 @@
     }
 
     // ==========================================
-    // 3. BUSCAR FOTO NO BANCO AO CARREGAR O PAINEL
+    // 3. BUSCAR FOTO E RESUMO DE HORAS NO BANCO
     // ==========================================
     window.onload = async function() {
         if(!npmLogado) return;
 
         try {
-            const { data, error } = await clienteSupabase
+            // 3.1 Busca a Foto de Perfil
+            const { data: usuarioData, error: usuarioError } = await clienteSupabase
                 .from('usuarios')
                 .select('foto_perfil')
                 .eq('npm', npmLogado)
                 .single();
 
-            // Se o usuário tiver uma foto salva no banco, atualiza o menu superior
-            if (data && data.foto_perfil) {
-                document.getElementById('fotoPerfilMenu').src = data.foto_perfil;
+            if (usuarioData && usuarioData.foto_perfil) {
+                document.getElementById('fotoPerfilMenu').src = usuarioData.foto_perfil;
             }
+
+            // 3.2 Busca as Horas Registradas e Soma para o Widget
+            const { data: horasData, error: horasError } = await clienteSupabase
+                .from('registro_horas')
+                .select('horas_trabalhadas')
+                .eq('usuario_npm', npmLogado);
+
+            if (!horasError && horasData) {
+                // Pega todos os registros e soma os valores matematicamente
+                let totalAcumulado = horasData.reduce((soma, registro) => soma + parseFloat(registro.horas_trabalhadas), 0);
+                
+                // Atualiza o texto lá no novo widget que criamos
+                document.getElementById('widgetTotalHoras').innerText = totalAcumulado.toFixed(2) + ' h';
+            }
+
         } catch (erro) {
-            console.error("Falha ao carregar a foto do banco:", erro);
+            console.error("Falha ao carregar os dados do painel:", erro);
         }
     };
 </script>
