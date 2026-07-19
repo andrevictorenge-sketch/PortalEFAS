@@ -94,25 +94,39 @@
                         <label>Nome Completo</label>
                         <input type="text" id="nome" placeholder="Seu nome completo">
                     </div>
+
+                    <div class="form-group full-width">
+                        <label>Nome Funcional</label>
+                        <input type="text" id="nomefuncional" placeholder="Seu nome completo">
+                    </div>
                     
                     <div class="form-group">
                         <label>Posto / Graduação</label>
-                        <select id="patente">
+                        <select id="postograduacao">
                             <option value="">Selecione...</option>
                             <option value="Cel">Coronel</option>
                             <option value="Ten Cel">Tenente-Coronel</option>
                             <option value="Maj">Major</option>
                             <option value="Cap">Capitão</option>
                             <option value="Ten">Tenente</option>
+                            <option value="Sgt">Cadete</option>
+                            <option value="Sgt">Aluno Of</option>
                             <option value="Sgt">Sargento</option>
+                            <option value="Sgt">Aluno Sargento</option>
                             <option value="Cb">Cabo</option>
                             <option value="Sd">Soldado</option>
+                            <option value="Sgt">Aluno Soldado</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Unidade (BPM / RPM)</label>
-                        <input type="text" id="unidade" placeholder="Ex: 1º BPM">
+                        <label>Unidade (BPM)</label>
+                        <input type="text" id="unidade" placeholder="Ex: EFAS">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Unidade Origem (BPM)</label>
+                        <input type="text" id="unidade origem" placeholder="Ex: 1º BPM">
                     </div>
 
                     <div class="form-group">
@@ -136,6 +150,9 @@
     <!-- Importando a Biblioteca Oficial do Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- Importando a Biblioteca Oficial do Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
     // ==========================================
     // 1. CONFIGURAÇÃO DO SUPABASE
@@ -149,7 +166,7 @@
     // 2. RECUPERAÇÃO DO NPM LOGADO
     // ==========================================
     const npmLogado = sessionStorage.getItem('usuario_npm');
-    let fotoBase64Atual = ''; // Variável para armazenar a foto na memória
+    let fotoBase64Atual = ''; 
 
     // ==========================================
     // 3. CARREGAR DADOS DO BANCO AO ABRIR
@@ -158,22 +175,26 @@
         if(!npmLogado) return;
 
         try {
+            // CORREÇÃO: Nomes exatos das colunas padronizadas no banco
             const { data, error } = await clienteSupabase
                 .from('usuarios')
-                .select('nome, patente, unidade, email, telefone, foto_perfil')
+                .select('nome_completo, nome_funcional, posto_graduacao, unidade_bpm, unidade_origem, email, telefone, foto_perfil')
                 .eq('npm', npmLogado)
                 .single();
 
             if (data) {
-                document.getElementById('nome').value = data.nome || '';
-                document.getElementById('patente').value = data.patente || '';
-                document.getElementById('unidade').value = data.unidade || '';
+                // CORREÇÃO: Mapeamento exato da resposta do banco para a tela
+                document.getElementById('nome').value = data.nome_completo || '';
+                document.getElementById('nomefuncional').value = data.nome_funcional || '';
+                document.getElementById('postograduacao').value = data.posto_graduacao || '';
+                document.getElementById('unidade').value = data.unidade_bpm || '';
+                document.getElementById('unidadeorigem').value = data.unidade_origem || '';
                 document.getElementById('email').value = data.email || '';
                 document.getElementById('telefone').value = data.telefone || '';
                 
                 if (data.foto_perfil) {
                     document.getElementById('previewFoto').src = data.foto_perfil;
-                    fotoBase64Atual = data.foto_perfil; // Salva para enviar de novo se não alterar
+                    fotoBase64Atual = data.foto_perfil; 
                 }
             }
         } catch (erro) {
@@ -189,7 +210,7 @@
         if (file) {
             var reader = new FileReader();
             reader.onload = function(e) {
-                fotoBase64Atual = e.target.result; // A foto virou um texto longo
+                fotoBase64Atual = e.target.result; 
                 document.getElementById('previewFoto').src = fotoBase64Atual;
             };
             reader.readAsDataURL(file);
@@ -206,18 +227,19 @@
         btn.innerHTML = 'Gravando no Banco...';
         btn.style.backgroundColor = '#666';
 
-        // Coleta os valores da tela
+        // CORREÇÃO: O Objeto JSON deve espelhar as colunas exatas do PostgreSQL
         const dadosAtualizados = {
-            nome: document.getElementById('nome').value.trim(),
-            patente: document.getElementById('patente').value,
-            unidade: document.getElementById('unidade').value.trim(),
+            nome_completo: document.getElementById('nome').value.trim(),
+            nome_funcional: document.getElementById('nomefuncional').value.trim(),
+            posto_graduacao: document.getElementById('postograduacao').value,
+            unidade_bpm: document.getElementById('unidade').value.trim(),
+            unidade_origem: document.getElementById('unidadeorigem').value.trim(),
             email: document.getElementById('email').value.trim(),
             telefone: document.getElementById('telefone').value.trim(),
             foto_perfil: fotoBase64Atual
         };
 
         try {
-            // Executa o UPDATE no Supabase
             const { error } = await clienteSupabase
                 .from('usuarios')
                 .update(dadosAtualizados)
@@ -225,10 +247,8 @@
 
             if (error) throw error;
 
-            // Atualiza também a sessão local para o painel reconhecer o nome caso tenha mudado
-            sessionStorage.setItem('usuario_nome', dadosAtualizados.nome);
+            sessionStorage.setItem('usuario_nome', dadosAtualizados.nome_completo);
 
-            // Sucesso Visual
             btn.innerHTML = '<i class="fas fa-check"></i> Sincronizado!';
             btn.style.backgroundColor = '#4CAF50';
             btn.style.color = 'white';
