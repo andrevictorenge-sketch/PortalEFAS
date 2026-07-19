@@ -218,7 +218,7 @@
     });
 
     // ==========================================
-    // 5. SALVAR DADOS NO POSTGRESQL
+    // 5. SALVAR DADOS NO POSTGRESQL (BLINDADO)
     // ==========================================
     document.getElementById('formDados').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -227,19 +227,25 @@
         btn.innerHTML = 'Gravando no Banco...';
         btn.style.backgroundColor = '#666';
 
-        // CORREÇÃO: O Objeto JSON deve espelhar as colunas exatas do PostgreSQL
-        const dadosAtualizados = {
-            nome_completo: document.getElementById('nome').value.trim(),
-            nome_funcional: document.getElementById('nomefuncional').value.trim(),
-            posto_graduacao: document.getElementById('postograduacao').value,
-            unidade_bpm: document.getElementById('unidade').value.trim(),
-            unidade_origem: document.getElementById('unidadeorigem').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            telefone: document.getElementById('telefone').value.trim(),
-            foto_perfil: fotoBase64Atual
-        };
-
         try {
+            // Trazemos a coleta de dados para dentro do TRY, assim, se algo falhar, o sistema avisa!
+            const dadosAtualizados = {
+                nome_completo: document.getElementById('nome').value.trim(),
+                nome_funcional: document.getElementById('nomefuncional').value.trim(),
+                posto_graduacao: document.getElementById('postograduacao').value,
+                unidade_bpm: document.getElementById('unidade').value.trim(),
+                unidade_origem: document.getElementById('unidadeorigem').value.trim(), // Agora o HTML está correto
+                email: document.getElementById('email').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                foto_perfil: fotoBase64Atual
+            };
+
+            // Trava de segurança para imagens muito grandes (se Base64 passar de ~1.5MB)
+            if (fotoBase64Atual && fotoBase64Atual.length > 2000000) {
+                 throw new Error("A imagem é muito pesada. Por favor, escolha uma foto menor.");
+            }
+
+            // Dispara para o Supabase
             const { error } = await clienteSupabase
                 .from('usuarios')
                 .update(dadosAtualizados)
@@ -260,7 +266,8 @@
             }, 2500);
 
         } catch (erro) {
-            alert("Erro ao salvar no banco: " + erro.message);
+            // Agora qualquer erro será capturado e o botão vai destravar!
+            alert("Atenção: " + erro.message);
             btn.innerHTML = '<i class="fas fa-save"></i> Tentar Novamente';
             btn.style.backgroundColor = '#d9534f';
         }
