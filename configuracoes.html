@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intranet PMMG - Meus Dados</title>
+    <title>Controle de Horas - Intranet PMMG</title>
     
     <!-- Blindagem de Segurança -->
     <script>
@@ -15,263 +15,486 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f2f5; color: #333; }
+        body { background-color: #f0f2f5; color: #333; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Reaproveitamento do Navbar */
-        .navbar { display: flex; justify-content: space-between; align-items: center; background-color: #d8ceb7; padding: 0 20px; height: 60px; border-bottom: 2px solid #c5bba3; }
-        .nav-left { display: flex; align-items: center; gap: 15px; }
-        .nav-left img { height: 40px; }
-        .nav-left h1 { font-size: 18px; color: #111; font-weight: 600; cursor: pointer; text-decoration: none; }
-        .sub-nav { height: 6px; background-color: #111; width: 100%; position: relative; }
-        .stripe-detail { position: absolute; left: 20px; top: 0; width: 100px; height: 100%; background: repeating-linear-gradient(45deg, #111, #111 5px, #d8ceb7 5px, #d8ceb7 10px); }
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: #111; color: #fff; display: flex; flex-direction: column; border-right: 4px solid #bd9b60; transition: 0.3s; z-index: 100; }
+        .sidebar-header { padding: 20px; display: flex; align-items: center; gap: 15px; background: #000; border-bottom: 1px solid #333; }
+        .sidebar-header img { width: 40px; }
+        .sidebar-header h2 { font-size: 16px; color: #bd9b60; }
+        .nav-links { flex: 1; padding: 20px 0; overflow-y: auto; }
+        .nav-item { padding: 12px 25px; display: flex; align-items: center; gap: 15px; color: #aaa; text-decoration: none; transition: 0.2s; font-size: 14px; }
+        .nav-item:hover, .nav-item.active { background-color: #222; color: #bd9b60; border-left: 4px solid #bd9b60; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #333; background: #000; }
+        .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .user-info img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        .user-info span { font-size: 13px; font-weight: bold; }
+        .btn-logout { background: #d9534f; color: white; border: none; padding: 8px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 13px; }
 
-        /* Container do Formulário */
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .config-card { background: #fff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-top: 5px solid #111; }
-        .config-header { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 25px; }
-        .config-header h2 { color: #111; font-size: 22px; }
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .top-navbar { background-color: #d8ceb7; height: 60px; min-height: 60px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 2px solid #c5bba3; }
+        .top-navbar h1 { font-size: 18px; color: #111; }
+        .container { padding: 30px; display: grid; grid-template-columns: 1fr 2fr; gap: 25px; align-items: start; }
+
+        /* Cards Gerais */
+        .dashboard-cards { grid-column: span 2; display: flex; gap: 20px; margin-bottom: 10px; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; flex: 1; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 5px solid #111; }
+        .card.gold { border-left-color: #bd9b60; }
+        .card h3 { font-size: 13px; color: #777; text-transform: uppercase; margin-bottom: 5px; }
+        .card .value { font-size: 28px; font-weight: bold; color: #111; }
         
-        /* Foto de Perfil */
-        .photo-upload-section { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; }
-        .photo-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #d8ceb7; }
-        .photo-actions label { background-color: #111; color: #fff; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; display: inline-block; }
-        .photo-actions label:hover { background-color: #333; }
-        .photo-actions input[type="file"] { display: none; }
-        .photo-help { font-size: 11px; color: #777; margin-top: 5px; }
+        /* Tema Escuro (Painel Gestor) */
+        .gestor-panel { background: #1a1a1a; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .card-dark { background: #000; border-left: 5px solid #bd9b60; }
+        .card-dark h3 { color: #bd9b60; }
+        .card-dark .value { color: #fff; }
 
-        /* Grid do Formulário */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: bold; color: #555; margin-bottom: 5px; }
-        .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; background: #fafafa; transition: 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: #bd9b60; outline: none; background: #fff; }
-        .form-group.full-width { grid-column: span 2; }
-
-        .btn-salvar {
-            background-color: #bd9b60; color: #111; font-weight: bold; border: none; padding: 12px 30px;
-            border-radius: 4px; cursor: pointer; font-size: 15px; margin-top: 30px; width: 100%; transition: 0.2s;
-        }
-        .btn-salvar:hover { background-color: #a88a55; }
+        /* Módulo de Inteligência (Gráficos e Pelotões) */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .stat-box { background: #000; padding: 20px; border-radius: 6px; border: 1px solid #333; }
+        .stat-box h4 { color: #aaa; font-size: 13px; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 8px;}
         
-        #msgRetorno { display: none; padding: 10px; margin-top: 15px; border-radius: 4px; font-size: 14px; text-align: center; }
+        /* Barras da CIA */
+        .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 14px; color: #fff; }
+        .progress-bg { background: #222; height: 10px; border-radius: 5px; width: 100%; margin-bottom: 15px; overflow: hidden; position: relative;}
+        .progress-bar { background: #bd9b60; height: 100%; transition: width 0.5s ease-in-out; }
+        .progress-bar.secundaria { background: #555; }
 
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .form-group.full-width { grid-column: span 1; }
+        /* Grid de Pelotões */
+        .pelotao-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .pelotao-card { background: #222; padding: 12px 5px; border-radius: 4px; text-align: center; border-bottom: 3px solid #bd9b60; transition: 0.2s;}
+        .pelotao-card:hover { background: #333; }
+        .pelotao-card span { display: block; color: #aaa; font-size: 11px; margin-bottom: 3px; text-transform: uppercase;}
+        .pelotao-card strong { color: #fff; font-size: 16px; }
+
+        /* Formulário e Tabelas */
+        .panel { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .panel h2 { font-size: 16px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; background: #fafafa; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #bd9b60; }
+        .btn-submit { background: #111; color: #fff; padding: 12px; border: none; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: #bd9b60; color: #111; }
+
+        /* Tabela */
+        .table-responsive { overflow-x: auto; max-height: 400px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { padding: 10px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f9f9f9; color: #555; font-weight: bold; position: sticky; top: 0; z-index: 10;}
+        tr:hover { background-color: #f5f5f5; }
+        
+        /* Tabela Escura para o Comando */
+        .table-dark th { background-color: #111; color: #bd9b60; border-bottom: 1px solid #333;}
+        .table-dark td { border-bottom: 1px solid #333; color: #ccc;}
+        .table-dark tr:hover { background-color: #222; }
+
+        .badge-op { background: #e5c98d; color: #111; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .badge-adm { background: #ddd; color: #111; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; }
+        .badge-cia { background: #333; color: #bd9b60; border: 1px solid #bd9b60; padding: 2px 6px; border-radius: 4px; font-size: 10px;}
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .dashboard-cards, .stats-grid { flex-direction: column; grid-column: span 1; display: flex; }
+            .pelotao-grid { grid-template-columns: repeat(2, 1fr); }
+            .sidebar { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navegação -->
-    <header class="navbar">
-        <a href="painel.html" class="nav-left">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Bras%C3%A3o_PMMG.svg/1200px-Bras%C3%A3o_PMMG.svg.png" alt="PMMG">
-            <h1>Intranet <i class="fas fa-home" style="font-size: 14px; margin-left: 5px; color: #555;"></i></h1>
-        </a>
-    </header>
-    <div class="sub-nav"><div class="stripe-detail"></div></div>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Bras%C3%A3o_PMMG.svg/1200px-Bras%C3%A3o_PMMG.svg.png" alt="Logo">
+            <h2>Intranet PMMG</h2>
+        </div>
+        
+        <nav class="nav-links">
+            <a href="painel.html" class="nav-item"><i class="fas fa-home"></i> Página Inicial</a>
+            <a href="controle-horas.html" class="nav-item active"><i class="fas fa-clock"></i> Controle de Horas</a>
+            <a href="#" class="nav-item"><i class="fas fa-calendar-alt"></i> Escalas SIGOp</a>
+            <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+        </nav>
 
-    <!-- Conteúdo -->
-    <main class="container">
-        <div class="config-card">
-            <div class="config-header">
-                <h2>Meus Dados Pessoais</h2>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <img id="sideFoto" src="https://i.pravatar.cc/150?img=11" alt="Perfil">
+                <span id="sideNome">Carregando...</span>
             </div>
+            <button class="btn-logout" onclick="fazerLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+    </aside>
 
-            <div class="photo-upload-section">
-                <img id="previewFoto" class="photo-preview" src="https://i.pravatar.cc/150?img=11" alt="Foto">
-                <div class="photo-actions">
-                    <label for="inputFoto"><i class="fas fa-camera"></i> Alterar Foto</label>
-                    <input type="file" id="inputFoto" accept="image/*">
-                    <div class="photo-help">Formatos suportados: JPG, PNG.</div>
+    <main class="main-content">
+        <header class="top-navbar">
+            <h1>Módulo: Horas de Serviço</h1>
+            <!-- Corrigido: Apenas um ID de badgeNivel para evitar quebra do JavaScript -->
+            <div style="font-size: 14px; font-weight: bold; color: #555;" id="badgeNivel">Nível: Operacional</div>
+        </header>
+
+        <div class="container">
+
+            <!-- ========================================== -->
+            <!-- PAINEL DO GESTOR (NÍVEL 2) - OCULTO POR PADRÃO -->
+            <!-- ========================================== -->
+            <div id="painelGestor" class="gestor-panel" style="display: none; grid-column: span 2; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; color: #fff; margin-bottom: 20px; border-bottom: 2px solid #bd9b60; padding-bottom: 10px;">
+                    <i class="fas fa-chart-line" style="color: #bd9b60;"></i> Dashboard do Comando (Visão Estratégica)
+                </h2>
+                
+                <div class="dashboard-cards">
+                    <div class="card card-dark">
+                        <h3>Efetivo: Total de Horas</h3>
+                        <div class="value" id="cmdTotalHoras">0.0 h</div>
+                    </div>
+                    <div class="card card-dark">
+                        <h3>Efetivo: Horas Operacionais</h3>
+                        <div class="value" id="cmdTotalOp">0.0 h</div>
+                    </div>
+                    <div class="card card-dark">
+                        <h3>Lançamentos na Base</h3>
+                        <div class="value" id="cmdTotalRegistros">0</div>
+                    </div>
+                </div>
+
+                <!-- Comparativos (CIA e Pelotão) -->
+                <div class="stats-grid">
+                    <!-- Gráfico CIA -->
+                    <div class="stat-box">
+                        <h4><i class="fas fa-shield-alt"></i> Produtividade por Companhia</h4>
+                        
+                        <div class="stat-row">
+                            <span>CIA Alferes (1º ao 4º Pel)</span>
+                            <strong id="cmdCiaAlferes">0 h</strong>
+                        </div>
+                        <div class="progress-bg"><div id="barCiaAlferes" class="progress-bar" style="width: 0%;"></div></div>
+                        
+                        <div class="stat-row">
+                            <span>CIA Tiradentes (5º ao 8º Pel)</span>
+                            <strong id="cmdCiaTiradentes">0 h</strong>
+                        </div>
+                        <div class="progress-bg"><div id="barCiaTiradentes" class="progress-bar secundaria" style="width: 0%;"></div></div>
+                    </div>
+
+                    <!-- Ranking Pelotão -->
+                    <div class="stat-box">
+                        <h4><i class="fas fa-users"></i> Distribuição por Pelotão</h4>
+                        <div class="pelotao-grid">
+                            <div class="pelotao-card"><span>1º Pel</span><strong id="cmdPel1">0h</strong></div>
+                            <div class="pelotao-card"><span>2º Pel</span><strong id="cmdPel2">0h</strong></div>
+                            <div class="pelotao-card"><span>3º Pel</span><strong id="cmdPel3">0h</strong></div>
+                            <div class="pelotao-card"><span>4º Pel</span><strong id="cmdPel4">0h</strong></div>
+                            <div class="pelotao-card"><span>5º Pel</span><strong id="cmdPel5">0h</strong></div>
+                            <div class="pelotao-card"><span>6º Pel</span><strong id="cmdPel6">0h</strong></div>
+                            <div class="pelotao-card"><span>7º Pel</span><strong id="cmdPel7">0h</strong></div>
+                            <div class="pelotao-card"><span>8º Pel</span><strong id="cmdPel8">0h</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Auditoria do Comando -->
+                <div style="margin-top: 25px; border-top: 1px solid #333; padding-top: 15px;">
+                    <h4 style="color:#aaa; font-size:13px; text-transform:uppercase; margin-bottom:10px;">Auditoria de Lançamentos (Tempo Real)</h4>
+                    <div class="table-responsive">
+                        <table class="table-dark">
+                            <thead>
+                                <tr>
+                                    <th>Unidade</th>
+                                    <th>Policial</th>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>Horas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaGestor">
+                                <tr><td colspan="5" style="text-align:center;">Carregando dados estruturais...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <form id="formDados">
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label>Nome Completo</label>
-                        <input type="text" id="nome" placeholder="Seu nome completo">
-                    </div>
+            <!-- ========================================== -->
+            <!-- PAINEL INDIVIDUAL (VISÍVEL PARA TODOS) -->
+            <!-- ========================================== -->
+            
+            <div style="grid-column: span 2; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">
+                <h2 style="font-size: 16px; color: #333;"><i class="fas fa-user-clock"></i> Meu Banco de Horas</h2>
+            </div>
 
-                    <div class="form-group full-width">
-                        <label>Nome Funcional</label>
-                        <input type="text" id="nomefuncional" placeholder="Seu nome completo">
-                    </div>
-                    
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3>Minhas Horas Totais</h3>
+                    <div class="value" id="totalHoras">0.0 h</div>
+                </div>
+                <div class="card gold">
+                    <h3>Minhas Horas Operacionais</h3>
+                    <div class="value" id="totalOperacional">0.0 h</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Registrar Novo Serviço</h2>
+                <form id="formHoras">
                     <div class="form-group">
-                        <label>Posto / Graduação</label>
-                        <select id="postograduacao">
+                        <label>Data do Serviço</label>
+                        <input type="date" id="data_servico" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Natureza / Tipo</label>
+                        <!-- CORREÇÃO APLICADA: Values exatos para garantir o armazenamento correto -->
+                        <select id="tipo_servico" required>
                             <option value="">Selecione...</option>
-                            <option value="Cel">Coronel</option>
-                            <option value="Ten Cel">Tenente-Coronel</option>
-                            <option value="Maj">Major</option>
-                            <option value="Cap">Capitão</option>
-                            <option value="Ten">Tenente</option>
-                            <option value="Sgt">Cadete</option>
-                            <option value="Sgt">Aluno Of</option>
-                            <option value="Sgt">Sargento</option>
-                            <option value="Sgt">Aluno Sargento</option>
-                            <option value="Cb">Cabo</option>
-                            <option value="Sd">Soldado</option>
-                            <option value="Sgt">Aluno Soldado</option>
+                            <option value="Serviços internos">Serviços internos</option>
+                            <option value="Guarda APM / Sentinela">Guarda APM / Sentinela</option>
+                            <option value="Operação Égide">Operação Égide</option>
+                            <option value="Empenhos DOP / Hipoteca">Empenhos DOP / Hipoteca</option>
+                            <option value="Serviços Extras / APMI">Serviços Extras / APMI</option>
                         </select>
                     </div>
-
                     <div class="form-group">
-                        <label>Unidade (BPM)</label>
-                        <input type="text" id="unidade" placeholder="Ex: EFAS">
+                        <label>Total de Horas</label>
+                        <input type="number" id="horas" step="0.5" min="1" max="24" placeholder="Ex: 8" required>
                     </div>
-
                     <div class="form-group">
-                        <label>Unidade Origem (BPM)</label>
-                        <input type="text" id="unidadeorigem" placeholder="Ex: 1º BPM">
+                        <label>Descrição Breve</label>
+                        <input type="text" id="descricao" placeholder="Ex: Patrulhamento Escolar" required>
                     </div>
+                    <button type="submit" class="btn-submit" id="btnSalvar">Registrar Horas</button>
+                    <div id="msgRetorno" style="margin-top:10px; font-size:13px; display:none;"></div>
+                </form>
+            </div>
 
-                    <div class="form-group">
-                        <label>E-mail Institucional</label>
-                        <input type="email" id="email" placeholder="usuario@pmmg.mg.gov.br">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Telefone / Celular</label>
-                        <input type="text" id="telefone" placeholder="(31) 90000-0000">
-                    </div>
+            <div class="panel">
+                <h2>Meu Histórico</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                                <th>Horas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaRegistros">
+                            <tr><td colspan="4" style="text-align:center;">Carregando...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
+            </div>
 
-                <div id="msgRetorno"></div>
-
-                <button type="submit" class="btn-salvar"><i class="fas fa-save"></i> Salvar Dados</button>
-            </form>
         </div>
     </main>
 
-    <!-- Importando a Biblioteca Oficial do Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Importando a Biblioteca Oficial do Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-    // ==========================================
-    // 1. CONFIGURAÇÃO DO SUPABASE
-    // ==========================================
-    const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
-    
-    const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ==========================================
-    // 2. RECUPERAÇÃO DO NPM LOGADO
-    // ==========================================
-    const npmLogado = sessionStorage.getItem('usuario_npm');
-    let fotoBase64Atual = ''; 
-
-    // ==========================================
-    // 3. CARREGAR DADOS DO BANCO AO ABRIR
-    // ==========================================
-    window.onload = async function() {
-        if(!npmLogado) return;
-
-        try {
-            // CORREÇÃO: Nomes exatos das colunas padronizadas no banco
-            const { data, error } = await clienteSupabase
-                .from('usuarios')
-                .select('nome_completo, nome_funcional, posto_graduacao, unidade_bpm, unidade_origem, email, telefone, foto_perfil')
-                .eq('npm', npmLogado)
-                .single();
-
-            if (data) {
-                // CORREÇÃO: Mapeamento exato da resposta do banco para a tela
-                document.getElementById('nome').value = data.nome_completo || '';
-                document.getElementById('nomefuncional').value = data.nome_funcional || '';
-                document.getElementById('postograduacao').value = data.posto_graduacao || '';
-                document.getElementById('unidade').value = data.unidade_bpm || '';
-                document.getElementById('unidadeorigem').value = data.unidade_origem || '';
-                document.getElementById('email').value = data.email || '';
-                document.getElementById('telefone').value = data.telefone || '';
-                
-                if (data.foto_perfil) {
-                    document.getElementById('previewFoto').src = data.foto_perfil;
-                    fotoBase64Atual = data.foto_perfil; 
-                }
-            }
-        } catch (erro) {
-            console.error("Erro ao puxar dados do Supabase:", erro);
-        }
-    };
-
-    // ==========================================
-    // 4. LEITOR DE FOTO (CONVERSÃO PARA TEXTO BASE64)
-    // ==========================================
-    document.getElementById('inputFoto').addEventListener('change', function(event) {
-        var file = event.target.files[0];
-        if (file) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                fotoBase64Atual = e.target.result; 
-                document.getElementById('previewFoto').src = fotoBase64Atual;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // ==========================================
-    // 5. SALVAR DADOS NO POSTGRESQL (BLINDADO)
-    // ==========================================
-    document.getElementById('formDados').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    <script>
+        // ==========================================
+        // 1. CONFIGURAÇÃO DO SUPABASE E SESSÃO
+        // ==========================================
+        const SUPABASE_URL = 'https://ofefmfqjnvjhsyxnxnbg.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mZWZtZnFqbnZqaHN5eG54bmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDQ2MTAsImV4cCI6MjEwMDAyMDYxMH0.H-SPjcYpCvBuICY_3_Od7J7cFiJBeFq1PNdBIoGYvr0';
         
-        var btn = document.querySelector('.btn-salvar');
-        btn.innerHTML = 'Gravando no Banco...';
-        btn.style.backgroundColor = '#666';
+        const clienteSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        const npmLogado = sessionStorage.getItem('usuario_npm');
+        const nivelAcesso = parseInt(sessionStorage.getItem('usuario_nivel') || '1');
 
-        try {
-            // Trazemos a coleta de dados para dentro do TRY, assim, se algo falhar, o sistema avisa!
-            const dadosAtualizados = {
-                nome_completo: document.getElementById('nome').value.trim(),
-                nome_funcional: document.getElementById('nomefuncional').value.trim(),
-                posto_graduacao: document.getElementById('postograduacao').value,
-                unidade_bpm: document.getElementById('unidade').value.trim(),
-                unidade_origem: document.getElementById('unidadeorigem').value.trim(), // Agora o HTML está correto
-                email: document.getElementById('email').value.trim(),
-                telefone: document.getElementById('telefone').value.trim(),
-                foto_perfil: fotoBase64Atual
+        document.getElementById('sideNome').innerText = sessionStorage.getItem('usuario_nome') || npmLogado;
+        const fotoSalva = localStorage.getItem('fotoPerfilPMMG');
+        if (fotoSalva) document.getElementById('sideFoto').src = fotoSalva;
+
+        function fazerLogout() {
+            sessionStorage.clear();
+            window.location.replace('index.html');
+        }
+
+        // ==========================================
+        // 2. LÓGICA DO NÍVEL 2 (VISÃO DO GESTOR AVANÇADA)
+        // ==========================================
+        if (nivelAcesso >= 2) {
+            document.getElementById('painelGestor').style.display = 'block';
+            document.getElementById('badgeNivel').innerHTML = '<i class="fas fa-star" style="color:#bd9b60;"></i> Nível: Comando';
+            carregarVisaoGestor();
+        }
+
+        async function carregarVisaoGestor() {
+            try {
+                const { data, error } = await clienteSupabase
+                    .from('registro_horas')
+                    .select('*, usuarios(nome_completo, posto_graduacao, pelotao, cia)')
+                    .order('criado_em', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('tabelaGestor');
+                tbody.innerHTML = '';
+                
+                let somaTropaTotal = 0;
+                let somaTropaOp = 0;
+                let horasCia = { 'Alferes': 0, 'Tiradentes': 0 };
+                let horasPel = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum registro encontrado.</td></tr>';
+                } else {
+                    data.forEach(reg => {
+                        let hrs = parseFloat(reg.horas_trabalhadas);
+                        
+                        // CORREÇÃO: Nova inteligência para identificar o que é "Operacional"
+                        let isOperacional = (reg.tipo_servico === 'Operação Égide' || reg.tipo_servico === 'Empenhos DOP / Hipoteca');
+                        
+                        somaTropaTotal += hrs;
+                        if(isOperacional) somaTropaOp += hrs;
+
+                        let usuario = reg.usuarios || {};
+                        let patente = usuario.posto_graduacao || '';
+                        let nome = usuario.nome_completo || reg.usuario_npm;
+                        let cia = usuario.cia || 'N/A';
+                        let pel = parseInt(usuario.pelotao) || 0;
+
+                        if (cia === 'Alferes') horasCia['Alferes'] += hrs;
+                        if (cia === 'Tiradentes') horasCia['Tiradentes'] += hrs;
+                        if (pel >= 1 && pel <= 8) horasPel[pel] += hrs;
+
+                        let badgeClass = isOperacional ? 'badge-op' : 'badge-adm';
+                        let dataFormatada = new Date(reg.data_servico + 'T00:00:00').toLocaleDateString('pt-BR');
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><span class="badge-cia">${pel}º Pel | ${cia}</span></td>
+                                <td><strong>${patente} ${nome}</strong></td>
+                                <td>${dataFormatada}</td>
+                                <td><span class="${badgeClass}">${reg.tipo_servico}</span></td>
+                                <td><strong>${hrs.toFixed(1)} h</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                document.getElementById('cmdTotalHoras').innerText = somaTropaTotal.toFixed(1) + ' h';
+                document.getElementById('cmdTotalOp').innerText = somaTropaOp.toFixed(1) + ' h';
+                document.getElementById('cmdTotalRegistros').innerText = data.length;
+
+                document.getElementById('cmdCiaAlferes').innerText = horasCia['Alferes'].toFixed(1) + ' h';
+                document.getElementById('cmdCiaTiradentes').innerText = horasCia['Tiradentes'].toFixed(1) + ' h';
+                
+                let maxCia = Math.max(horasCia['Alferes'], horasCia['Tiradentes'], 1); 
+                document.getElementById('barCiaAlferes').style.width = ((horasCia['Alferes'] / maxCia) * 100) + '%';
+                document.getElementById('barCiaTiradentes').style.width = ((horasCia['Tiradentes'] / maxCia) * 100) + '%';
+
+                for(let i=1; i<=8; i++) {
+                    document.getElementById('cmdPel'+i).innerText = horasPel[i].toFixed(1) + ' h';
+                }
+
+            } catch (erro) {
+                console.error("Erro na Visão Gestor:", erro);
+            }
+        }
+
+        // ==========================================
+        // 3. BUSCAR DADOS PESSOAIS DO USUÁRIO LOGADO
+        // ==========================================
+        async function carregarRegistrosPessoais() {
+            try {
+                const { data, error } = await clienteSupabase
+                    .from('registro_horas')
+                    .select('*')
+                    .eq('usuario_npm', npmLogado)
+                    .order('data_servico', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('tabelaRegistros');
+                tbody.innerHTML = '';
+                let somaTotal = 0;
+                let somaOp = 0;
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado.</td></tr>';
+                } else {
+                    data.forEach(reg => {
+                        let hrs = parseFloat(reg.horas_trabalhadas);
+                        
+                        // CORREÇÃO: Nova inteligência para identificar o que é "Operacional"
+                        let isOperacional = (reg.tipo_servico === 'Operação Égide' || reg.tipo_servico === 'Empenhos DOP / Hipoteca');
+
+                        somaTotal += hrs;
+                        if(isOperacional) somaOp += hrs;
+
+                        let badgeClass = isOperacional ? 'badge-op' : 'badge-adm';
+                        let dataFormatada = new Date(reg.data_servico + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${dataFormatada}</td>
+                                <td><span class="${badgeClass}">${reg.tipo_servico}</span></td>
+                                <td>${reg.descricao}</td>
+                                <td><strong>${hrs.toFixed(1)} h</strong></td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                document.getElementById('totalHoras').innerText = somaTotal.toFixed(1) + ' h';
+                document.getElementById('totalOperacional').innerText = somaOp.toFixed(1) + ' h';
+
+            } catch (erro) {
+                console.error("Erro Pessoal:", erro);
+            }
+        }
+
+        carregarRegistrosPessoais();
+
+        // ==========================================
+        // 4. SALVAR NOVAS HORAS NO BANCO
+        // ==========================================
+        document.getElementById('formHoras').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnSalvar');
+            const msg = document.getElementById('msgRetorno');
+            btn.innerHTML = 'Gravando...';
+            btn.disabled = true;
+
+            const novoRegistro = {
+                usuario_npm: npmLogado,
+                data_servico: document.getElementById('data_servico').value,
+                tipo_servico: document.getElementById('tipo_servico').value,
+                horas_trabalhadas: document.getElementById('horas').value,
+                descricao: document.getElementById('descricao').value
             };
 
-            // Trava de segurança para imagens muito grandes (se Base64 passar de ~1.5MB)
-            if (fotoBase64Atual && fotoBase64Atual.length > 2000000) {
-                 throw new Error("A imagem é muito pesada. Por favor, escolha uma foto menor.");
+            try {
+                const { error } = await clienteSupabase
+                    .from('registro_horas')
+                    .insert([novoRegistro]);
+
+                if (error) throw error;
+
+                msg.style.display = 'block';
+                msg.style.color = 'green';
+                msg.innerText = 'Serviço registrado com sucesso!';
+                
+                document.getElementById('formHoras').reset();
+                
+                // Recarrega as visões imediatamente
+                carregarRegistrosPessoais();
+                if (nivelAcesso >= 2) carregarVisaoGestor();
+
+            } catch (erro) {
+                msg.style.display = 'block';
+                msg.style.color = 'red';
+                msg.innerText = 'Erro ao salvar: ' + erro.message;
+            } finally {
+                btn.innerHTML = 'Registrar Horas';
+                btn.disabled = false;
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
             }
-
-            // Dispara para o Supabase
-            const { error } = await clienteSupabase
-                .from('usuarios')
-                .update(dadosAtualizados)
-                .eq('npm', npmLogado);
-
-            if (error) throw error;
-
-            sessionStorage.setItem('usuario_nome', dadosAtualizados.nome_completo);
-
-            btn.innerHTML = '<i class="fas fa-check"></i> Sincronizado!';
-            btn.style.backgroundColor = '#4CAF50';
-            btn.style.color = 'white';
-            
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fas fa-save"></i> Salvar Dados';
-                btn.style.backgroundColor = '#bd9b60';
-                btn.style.color = '#111';
-            }, 2500);
-
-        } catch (erro) {
-            // Agora qualquer erro será capturado e o botão vai destravar!
-            alert("Atenção: " + erro.message);
-            btn.innerHTML = '<i class="fas fa-save"></i> Tentar Novamente';
-            btn.style.backgroundColor = '#d9534f';
-        }
-    });
-</script>
+        });
+    </script>
 </body>
 </html>
